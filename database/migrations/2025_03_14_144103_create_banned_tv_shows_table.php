@@ -14,12 +14,12 @@ return new class extends Migration
     Schema::create('banned_tv_shows', function (Blueprint $table) {
         $table->id();
         $table->foreignId('tv_show_id')->constrained()->onDelete('cascade');
+        $table->bigInteger('tmdb_id')->unsigned();
+        $table->boolean('is_tmdb')->default(false)->after('tmdb_id');
         $table->text('reason')->nullable();
         $table->timestamps();
     });
 }
-
-
     /**
      * Reverse the migrations.
      */

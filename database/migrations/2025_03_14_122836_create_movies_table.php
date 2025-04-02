@@ -6,29 +6,21 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up()
     {
         Schema::create('movies', function (Blueprint $table) {
             $table->id();
             $table->string('title');
             $table->text('description')->nullable();
-            $table->string('genre')->nullable();
             $table->integer('year')->nullable();
             $table->float('rating')->nullable();
-            $table->string('poster')->nullable();
+            $table->string('poster')->nullable(); // Stores Cloudinary URL
+            $table->boolean('is_banned')->default(false);
             $table->timestamps();
         });
     }
-    
 
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    public function down()
     {
         Schema::dropIfExists('movies');
     }
