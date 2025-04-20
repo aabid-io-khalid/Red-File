@@ -9,6 +9,7 @@ use Stripe\PaymentMethod;
 use Stripe\Subscription as StripeSubscription;
 use App\Models\Subscription;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class SubscriptionController extends Controller
 {
@@ -21,23 +22,32 @@ class SubscriptionController extends Controller
     public function showSubscriptionPage()
     {
         $user = auth()->user();
+        $subscription = $user->subscription;
 
-        if ($user->hasActiveSubscription()) {
+        if ($subscription && $subscription->isValid()) {
             return redirect()->route('subscription.manage')
-                ->with('info', 'You already have an active subscription.');
+                ->with('info', 'You have an active subscription.');
+        }
+
+        if ($subscription && !$subscription->isValid()) {
+            DB::table('role_user')->where([
+                'user_id' => $user->id,
+                'role_id' => 3,
+            ])->delete();
+
+            $subscription->update(['status' => 'inactive']);
         }
 
         return view('subscription.index');
     }
 
-    // Process subscription (Stripe Checkout flow)
     public function processSubscription(Request $request)
     {
         $user = auth()->user();
 
         if ($user->hasActiveSubscription()) {
             return redirect()->route('subscription.manage')
-                ->with('info', 'You already have an active subscription.');
+                ->with('info', 'You have an active subscription.');
         }
 
         Stripe::setApiKey(env('STRIPE_SECRET'));
@@ -70,115 +80,114 @@ class SubscriptionController extends Controller
         return redirect($session->url);
     }
 
-    // API endpoint for direct subscription creation from the form
     public function createSubscription(Request $request)
-{
-    $user = auth()->user();
+    {
+        $user = auth()->user();
 
-    if ($user->hasActiveSubscription()) {
-        return response()->json([
-            'success' => false,
-            'message' => 'You already have an active subscription.'
-        ], 400);
-    }
-
-    $validated = $request->validate([
-        'payment_method_id' => 'required|string',
-        'plan' => 'required|string',
-    ]);
-
-    Stripe::setApiKey(env('STRIPE_SECRET'));
-
-    try {
-        // Create or get customer
-        $customer = null;
-        $existingSubscription = $user->subscription;
-
-        if ($existingSubscription && $existingSubscription->stripe_customer_id) {
-            $customer = Customer::retrieve($existingSubscription->stripe_customer_id);
-        } else {
-            $customer = Customer::create([
-                'email' => $user->email,
-                'name' => $user->name,
-                'payment_method' => $validated['payment_method_id'],
-                'invoice_settings' => [
-                    'default_payment_method' => $validated['payment_method_id'],
-                ],
-                'metadata' => ['user_id' => $user->id],
-            ]);
-        }
-
-        // Attach payment method to customer
-        PaymentMethod::retrieve($validated['payment_method_id'])->attach([
-            'customer' => $customer->id,
-        ]);
-
-        // Create subscription
-        $subscription = StripeSubscription::create([
-            'customer' => $customer->id,
-            'items' => [['price' => env('STRIPE_PRICE_ID')]],
-            'payment_behavior' => 'allow_incomplete',
-            'payment_settings' => ['save_default_payment_method' => 'on_subscription'],
-            'metadata' => ['user_id' => $user->id, 'plan' => $validated['plan']],
-        ]);
-
-        // Retrieve the latest invoice to check payment intent
-        $invoice = \Stripe\Invoice::retrieve($subscription->latest_invoice, ['expand' => ['payment_intent']]);
-        $paymentIntent = $invoice->payment_intent;
-
-        // Save subscription data
-        $userSubscription = $user->subscription ?? new Subscription(['user_id' => $user->id]);
-        $userSubscription->fill([
-            'stripe_customer_id' => $customer->id,
-            'stripe_subscription_id' => $subscription->id,
-            'status' => $subscription->status,
-            'plan_name' => 'PELIXS Premium',
-            'amount' => 2.00,
-            'trial_ends_at' => $subscription->trial_end ? Carbon::createFromTimestamp($subscription->trial_end) : null,
-            'current_period_starts_at' => $subscription->current_period_start ? Carbon::createFromTimestamp($subscription->current_period_start) : null,
-            'current_period_ends_at' => $subscription->current_period_end ? Carbon::createFromTimestamp($subscription->current_period_end) : null,
-            'canceled_at' => null,
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
-        ]);
-        
-        $userSubscription->save();
-
-        // Check if payment needs additional action (e.g., 3D Secure)
-        if ($paymentIntent && $paymentIntent->status === 'requires_action') {
+        if ($user->hasActiveSubscription()) {
             return response()->json([
-                'requires_action' => true,
-                'client_secret' => $paymentIntent->client_secret,
-            ]);
+                'success' => false,
+                'message' => 'You already have an active subscription.'
+            ], 400);
         }
 
-        // If no action required, subscription is active
-        return response()->json(['success' => true]);
+        $validated = $request->validate([
+            'payment_method_id' => 'required|string',
+            'plan' => 'required|string',
+        ]);
 
-    } catch (\Stripe\Exception\ApiErrorException $e) {
-        \Log::error('Stripe API Error: ' . $e->getMessage());
-        return response()->json([
-            'success' => false,
-            'message' => 'Stripe Error: ' . $e->getMessage()
-        ], 400);
-    } catch (\Exception $e) {
-        \Log::error('Subscription Creation Error: ' . $e->getMessage() . ' | Stack: ' . $e->getTraceAsString());
-        return response()->json([
-            'success' => false,
-            'message' => 'Server Error: ' . $e->getMessage()
-        ], 500);
+        Stripe::setApiKey(env('STRIPE_SECRET'));
+
+        try {
+            $customer = null;
+            $existingSubscription = $user->subscription;
+
+            if ($existingSubscription && $existingSubscription->stripe_customer_id) {
+                $customer = Customer::retrieve($existingSubscription->stripe_customer_id);
+            } else {
+                $customer = Customer::create([
+                    'email' => $user->email,
+                    'name' => $user->name,
+                    'payment_method' => $validated['payment_method_id'],
+                    'invoice_settings' => [
+                        'default_payment_method' => $validated['payment_method_id'],
+                    ],
+                    'metadata' => ['user_id' => $user->id],
+                ]);
+            }
+
+            PaymentMethod::retrieve($validated['payment_method_id'])->attach([
+                'customer' => $customer->id,
+            ]);
+
+            $subscription = StripeSubscription::create([
+                'customer' => $customer->id,
+                'items' => [['price' => env('STRIPE_PRICE_ID')]],
+                'payment_behavior' => 'allow_incomplete',
+                'payment_settings' => ['save_default_payment_method' => 'on_subscription'],
+                'metadata' => ['user_id' => $user->id, 'plan' => $validated['plan']],
+            ]);
+
+            $invoice = \Stripe\Invoice::retrieve($subscription->latest_invoice, ['expand' => ['payment_intent']]);
+            $paymentIntent = $invoice->payment_intent;
+
+            // Save subscription data
+            $userSubscription = $user->subscription ?? new Subscription(['user_id' => $user->id]);
+            $userSubscription->fill([
+                'stripe_customer_id' => $customer->id,
+                'stripe_subscription_id' => $subscription->id,
+                'status' => 'active',
+                'plan_name' => 'PELIXS Premium',
+                'amount' => 2.00,
+                'trial_ends_at' => null,
+                'current_period_starts_at' => Carbon::now(),
+                'current_period_ends_at' => Carbon::now()->addDays(30),
+                'canceled_at' => null,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ]);
+            
+            $userSubscription->save();
+
+            // Assign premium role (role_id = 3)
+            if (!$user->hasRole('premium')) {
+                DB::table('role_user')->insert([
+                    'user_id' => $user->id,
+                    'role_id' => 3,
+                ]);
+            }
+
+            if ($paymentIntent && $paymentIntent->status === 'requires_action') {
+                return response()->json([
+                    'requires_action' => true,
+                    'client_secret' => $paymentIntent->client_secret,
+                ]);
+            }
+
+            return response()->json(['success' => true]);
+
+        } catch (\Stripe\Exception\ApiErrorException $e) {
+            \Log::error('Stripe API Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Stripe Error: ' . $e->getMessage()
+            ], 400);
+        } catch (\Exception $e) {
+            \Log::error('Subscription Creation Error: ' . $e->getMessage() . ' | Stack: ' . $e->getTraceAsString());
+            return response()->json([
+                'success' => false,
+                'message' => 'Server Error: ' . $e->getMessage()
+            ], 500);
+        }
     }
-}
 
-
-
-    // Handle subscription success
     public function success(Request $request)
     {
         $user = auth()->user();
 
         if (!$request->has('session_id')) {
-            return redirect()->route('subscription');
+            return redirect()->route('subscription')
+                ->with('error', 'Invalid session ID.');
         }
 
         Stripe::setApiKey(env('STRIPE_SECRET'));
@@ -191,18 +200,26 @@ class SubscriptionController extends Controller
             $userSubscription->fill([
                 'stripe_customer_id' => $session->customer,
                 'stripe_subscription_id' => $session->subscription,
-                'status' => $subscription->status,
+                'status' => 'active',
                 'plan_name' => 'PELIXS Premium',
                 'amount' => 2.00,
-                'trial_ends_at' => $subscription->trial_end ? Carbon::createFromTimestamp($subscription->trial_end) : null,
-                'current_period_starts_at' => Carbon::createFromTimestamp($subscription->current_period_start),
-                'current_period_ends_at' => Carbon::createFromTimestamp($subscription->current_period_end),
+                'trial_ends_at' => null,
+                'current_period_starts_at' => Carbon::now(),
+                'current_period_ends_at' => Carbon::now()->addDays(30),
                 'canceled_at' => null,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);          
             
             $userSubscription->save();
+
+            // Assign premium role (role_id = 3)
+            if (!$user->hasRole('premium')) {
+                DB::table('role_user')->insert([
+                    'user_id' => $user->id,
+                    'role_id' => 3,
+                ]);
+            }
 
             return view('subscription.success');
         } catch (\Exception $e) {
@@ -211,13 +228,11 @@ class SubscriptionController extends Controller
         }
     }
 
-    // Handle subscription cancellation (show cancel page)
     public function cancel()
     {
         return view('subscription.cancel');
     }
 
-    // Manage subscription
     public function manage()
     {
         $user = auth()->user();
@@ -228,10 +243,24 @@ class SubscriptionController extends Controller
                 ->with('info', 'You don\'t have any active subscriptions.');
         }
 
+        // Check if subscription period has ended
+        if (!$subscription->isValid()) {
+            // Remove premium role
+            DB::table('role_user')->where([
+                'user_id' => $user->id,
+                'role_id' => 3,
+            ])->delete();
+
+            // Update subscription status to inactive
+            $subscription->update(['status' => 'inactive']);
+            
+            return redirect()->route('subscription')
+                ->with('info', 'Your subscription has expired.');
+        }
+
         return view('subscription.manage', compact('subscription'));
     }
 
-    // Cancel subscription
     public function cancelSubscription()
     {
         $user = auth()->user();
@@ -250,9 +279,12 @@ class SubscriptionController extends Controller
 
             $user->subscription->update([
                 'canceled_at' => Carbon::now(),
+                'status' => 'canceled',
             ]);
 
-            return redirect()->back()->with('success', 'Your subscription has been canceled. You will have access until the end of your billing period.');
+            // Premium role remains until current_period_ends_at
+
+            return redirect()->back()->with('success', 'Your subscription has been canceled. You will have access until ' . $user->subscription->current_period_ends_at->format('F j, Y') . '.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Error canceling subscription: ' . $e->getMessage());
         }
