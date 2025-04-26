@@ -13,7 +13,7 @@ class CreateSubscriptionsTable extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('stripe_customer_id')->nullable();
             $table->string('stripe_subscription_id')->nullable();
-            $table->string('status')->default('inactive'); // inactive, active, canceled, past_due
+            $table->string('status')->default('inactive'); 
             $table->string('plan_name')->default('PELIXS Premium');
             $table->decimal('amount', 8, 2)->default(2.00);
             $table->timestamp('trial_ends_at')->nullable();

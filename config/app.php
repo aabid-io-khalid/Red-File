@@ -111,6 +111,7 @@ return [
         // App\Providers\RouteServiceProvider::class,
         // CloudinaryLabs\CloudinaryLaravel\CloudinaryServiceProvider::class,
         Laravel\Socialite\SocialiteServiceProvider::class,
+        Barryvdh\DomPDF\ServiceProvider::class,
     ],
 
     /*
@@ -164,5 +165,6 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
         // 'Cloudinary' => CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::class,
         'Socialite' => Laravel\Socialite\Facades\Socialite::class,
+        'PDF' => Barryvdh\DomPDF\Facade\Pdf::class,
     ],
 ];

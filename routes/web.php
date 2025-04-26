@@ -37,7 +37,6 @@ Route::get('reset-password/{token}', [AuthController::class, 'showResetForm'])->
 Route::post('reset-password', [AuthController::class, 'updatePassword'])->name('password.update');
 
 /* ----- Public Routes ----- */
-// Removed Route::view('dashboard', 'dashboard')->name('dashboard');
 Route::get('/tv-shows', [TvShowController::class, 'index'])->name('tv.shows');
 Route::get('/browse', [BrowseController::class, 'browse'])->name('browse');
 Route::get('/movies', [MovieController::class, 'movies'])->name('movies.index');
@@ -54,31 +53,25 @@ Route::get('/home', [TvShowController::class, 'index'])->name('home');
 
 /* ----- Admin Routes ----- */
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('/', function () {
-        return view('admin.index');
-    })->name('index');
-
+    // Analytics Dashboard
+    Route::get('/', [AdminAnalyticsController::class, 'index'])->name('index');
     Route::get('/analytics', [AdminAnalyticsController::class, 'index'])->name('analytics');
     Route::get('/analytics/update', [AdminAnalyticsController::class, 'updateAnalytics'])->name('analytics.update');
+    Route::get('/analytics/export', [AdminAnalyticsController::class, 'exportReport'])->name('analytics.export'); 
 
+    // Series Routes (AdminTvShowController)
     Route::get('/series', [AdminTvShowController::class, 'index'])->name('series');
-
-    // CRUD operations
     Route::post('/series', [AdminTvShowController::class, 'store'])->name('series.store');
     Route::get('/series/{id}/edit', [AdminTvShowController::class, 'edit'])->name('series.edit');
     Route::put('/series/{id}', [AdminTvShowController::class, 'update'])->name('series.update');
     Route::delete('/series/{id}', [AdminTvShowController::class, 'destroy'])->name('series.destroy');
-
-    // Ban management
     Route::post('/series/toggle-ban/{id}', [AdminTvShowController::class, 'toggleBan'])->name('series.toggle-ban');
     Route::post('/series/toggle-ban-api/{id}', [AdminTvShowController::class, 'toggleBan'])->name('series.toggle-ban-api');
-
-    
 
     // Movies Routes (AdminMovieController)
     Route::get('/movies', [AdminMovieController::class, 'index'])->name('movies.index');
     Route::post('/movies', [AdminMovieController::class, 'store'])->name('movies.store');
-    Route::get('/movies/{id}/edit', [AdminMovieController::class, 'edit'])->name('movies.edit'); // JSON response
+    Route::get('/movies/{id}/edit', [AdminMovieController::class, 'edit'])->name('movies.edit');
     Route::put('/movies/{id}', [AdminMovieController::class, 'update'])->name('movies.update');
     Route::post('/movies/toggle-ban/{id}', [AdminMovieController::class, 'toggleBan'])->name('movies.toggle-ban');
     Route::delete('/movies/{id}', [AdminMovieController::class, 'destroy'])->name('movies.destroy');

@@ -3,26 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Remix Icon CDN -->
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-    
-    <!-- Swiper.js for carousel -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/10.0.0/swiper-bundle.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/10.0.0/swiper-bundle.min.js"></script>
-
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    
     <title>PELIXS - TV Show Details</title>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#e50914', 
+                        primary: '#e50914',
                         dark: '#141414',
                         darker: '#0b0b0b'
                     }
@@ -31,35 +23,14 @@
         }
     </script>
     <style>
-        .show-card:hover .card-overlay {
-            opacity: 1;
-        }
-        .show-card:hover .play-button {
-            transform: translateY(0) scale(1);
-        }
-        .show-card:hover .card-image {
-            transform: scale(1.05);
-            filter: brightness(0.7);
-        }
-        .rating-pill {
-            background: rgba(255, 215, 0, 0.2);
-            border: 1px solid rgba(255, 215, 0, 0.4);
-        }
-        .genre-pill {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(4px);
-        }
-        .hero-gradient {
-            background: linear-gradient(to top, rgba(11, 11, 11, 1) 0%, rgba(11, 11, 11, 0) 100%);
-        }
-        .blur-backdrop {
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-        .swiper-container {
-            overflow: hidden;
-            position: relative;
-        }
+        .show-card:hover .card-overlay { opacity: 1; }
+        .show-card:hover .play-button { transform: translateY(0) scale(1); }
+        .show-card:hover .card-image { transform: scale(1.05); filter: brightness(0.7); }
+        .rating-pill { background: rgba(255, 215, 0, 0.2); border: 1px solid rgba(255, 215, 0, 0.4); }
+        .genre-pill { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(4px); }
+        .hero-gradient { background: linear-gradient(to top, rgba(11, 11, 11, 1) 0%, rgba(11, 11, 11, 0) 100%); }
+        .blur-backdrop { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+        .swiper-container { overflow: hidden; position: relative; }
         .swiper-button-next, .swiper-button-prev {
             color: white !important;
             background: rgba(0, 0, 0, 0.6);
@@ -68,115 +39,40 @@
             border-radius: 50%;
             transition: all 0.3s ease;
         }
-        .swiper-button-next:hover, .swiper-button-prev:hover {
-            background: rgba(229, 9, 20, 0.8);
+        .swiper-button-next:hover, .swiper-button-prev:hover { background: rgba(229, 9, 20, 0.8); }
+        .swiper-button-next:after, .swiper-button-prev:after { font-size: 18px !important; }
+        .search-expand { width: 0; transition: width 0.3s ease; }
+        .search-expanded { width: 200px; }
+        .banner-overlay { background: linear-gradient(to bottom, rgba(11, 11, 11, 0) 0%, rgba(11, 11, 11, 0.8) 60%, rgba(11, 11, 11, 1) 100%); }
+        .season-button:hover .play-icon { transform: scale(1.2); }
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(229, 9, 20, 0.5); }
+        .swiper-wrapper::-webkit-scrollbar { display: none; }
+        .swiper-wrapper { -ms-overflow-style: none; scrollbar-width: none; }
+        .episode-item:hover { background-color: rgba(255, 255, 255, 0.05); }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+        .accordion-open .accordion-content { max-height: 2000px; }
+        .accordion-icon { transition: transform 0.3s ease; }
+        .accordion-open .accordion-icon { transform: rotate(180deg); }
+        .episodes-list { max-height: 500px; overflow-y: auto; }
+        .episodes-list::-webkit-scrollbar { width: 6px; }
+        .episodes-list::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
+        .episodes-list::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
+        .episodes-list::-webkit-scrollbar-thumb:hover { background: rgba(229, 9, 20, 0.5); }
+        .download-btn { transition: all 0.2s ease; }
+        .download-btn:hover { transform: scale(1.1); }
+        .scale-95 { transform: scale(0.95); }
+        .scale-100 { transform: scale(1); }
+        .opacity-0 { opacity: 0; }
+        .transform { transition-property: transform, opacity; }
+        .pulse-animation { animation: pulse 0.5s; }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(229, 9, 20, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(229, 9, 20, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(229, 9, 20, 0); }
         }
-        .swiper-button-next:after, .swiper-button-prev:after {
-            font-size: 18px !important;
-        }
-        .search-expand {
-            width: 0;
-            transition: width 0.3s ease;
-        }
-        .search-expanded {
-            width: 200px;
-        }
-        .banner-overlay {
-            background: linear-gradient(to bottom, rgba(11, 11, 11, 0) 0%, rgba(11, 11, 11, 0.8) 60%, rgba(11, 11, 11, 1) 100%);
-        }
-        .season-button:hover .play-icon {
-            transform: scale(1.2);
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: rgba(229, 9, 20, 0.5);
-        }
-        .swiper-wrapper::-webkit-scrollbar {
-            display: none;
-        }
-        .swiper-wrapper {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        .episode-item:hover {
-            background-color: rgba(255, 255, 255, 0.05);
-        }
-        .accordion-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-        }
-        .accordion-open .accordion-content {
-            max-height: 2000px;
-        }
-        .accordion-icon {
-            transition: transform 0.3s ease;
-        }
-        .accordion-open .accordion-icon {
-            transform: rotate(180deg);
-        }
-        .episodes-list {
-            max-height: 500px;
-            overflow-y: auto;
-        }
-        .episodes-list::-webkit-scrollbar {
-            width: 6px;
-        }
-        .episodes-list::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-        }
-        .episodes-list::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 10px;
-        }
-        .episodes-list::-webkit-scrollbar-thumb:hover {
-            background: rgba(229, 9, 20, 0.5);
-        }
-        /* Download button hover effect */
-        .download-btn {
-            transition: all 0.2s ease;
-        }
-        .download-btn:hover {
-            transform: scale(1.1);
-        }
-        /* Add these styles to your existing style section */
-.scale-95 {
-    transform: scale(0.95);
-}
-.scale-100 {
-    transform: scale(1);
-}
-.opacity-0 {
-    opacity: 0;
-}
-.transform {
-    transition-property: transform, opacity;
-}
-.pulse-animation {
-    animation: pulse 0.5s;
-}
-@keyframes pulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(229, 9, 20, 0.7);
-    }
-    70% {
-        box-shadow: 0 0 0 10px rgba(229, 9, 20, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(229, 9, 20, 0);
-    }
-}
     </style>
 </head>
 <body class="bg-darker text-white font-sans">
@@ -184,25 +80,47 @@
     <header class="bg-dark py-4 px-6 shadow-lg fixed top-0 w-full z-50">
         <div class="container mx-auto flex justify-between items-center">
             <h1 class="text-3xl font-bold text-primary tracking-wider">PELIXS</h1>
+            <!-- Navigation -->
             <nav class="hidden md:flex space-x-6">
-                <a href="/home" class="hover:text-primary transition">Home</a>
+                <a href="/home" class="text-primary font-medium">Home</a>
                 <a href="/browse" class="hover:text-primary transition">Browse</a>
                 <a href="/movies" class="hover:text-primary transition">Movies</a>
-                <a href="/shows" class="text-primary font-medium">TV Shows</a>
+                <a href="/shows" class="hover:text-primary transition">TV Shows</a>
                 <a href="/anime" class="hover:text-primary transition">Anime</a>
-                <a href="/browse?list=favorites" class="hover:text-primary transition">My List</a>
+                @auth
+                    @can('access-community-chat')
+                        <a href="{{ url('/community') }}" class="hover:text-primary transition">Community</a>
+                        <a href="/mylist" class="hover:text-primary transition">My List</a>
+                    @endcan
+                    <a href="{{ url('/subscription') }}" class="hover:text-primary transition">Subscription</a>
+                @else
+                    <a href="{{ url('/login') }}" class="hover:text-primary transition">Community</a>
+                @endauth
             </nav>
             <div class="flex items-center space-x-4">
                 <div class="relative flex items-center">
                     <form id="search-form" action="/browse" method="get" class="flex items-center">
-                        <input id="search-input" type="text" name="search" placeholder="Search movies & shows..." class="search-expand bg-gray-800 text-white px-4 py-2 rounded-full text-sm focus:outline-none border border-gray-700 hidden">
+                        <input id="search-input" type="text" name="search" placeholder="Search movies & shows..." 
+                               class="search-expand bg-gray-800 text-white px-4 py-2 rounded-full text-sm focus:outline-none border border-gray-700 hidden">
                         <button type="button" id="search-toggle" class="text-xl p-2 rounded-full hover:bg-gray-800 transition">
                             <i class="ri-search-line"></i>
                         </button>
                     </form>
                 </div>
-                <button class="text-xl p-2 rounded-full hover:bg-gray-800 transition"><i class="ri-notification-3-line"></i></button>
-                <div class="w-8 h-8 bg-primary rounded-full"></div>
+                @guest
+                    <a href="{{ url('/login') }}"
+                       class="bg-primary text-white px-4 py-2 rounded-md hover:bg-primary/90 transition flex items-center">
+                        <i class="ri-login-box-line mr-2"></i> Log In
+                    </a>
+                @else
+                    <form action="{{ route('logout') }}" method="POST" class="inline-flex">
+                        @csrf
+                        <button type="submit"
+                                class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition flex items-center">
+                            <i class="ri-logout-box-r-line mr-2"></i> Log Out
+                        </button>
+                    </form>
+                @endauth
             </div>
         </div>
     </header>
@@ -259,7 +177,6 @@
     </button>
 @endcan
 
-                        
 
                             <button class="bg-gray-800 hover:bg-gray-700 px-6 py-3 rounded-lg font-medium flex items-center">
                                 <i class="ri-share-line mr-2"></i> Share

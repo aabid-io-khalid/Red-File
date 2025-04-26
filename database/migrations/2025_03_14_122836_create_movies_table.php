@@ -14,7 +14,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->integer('year')->nullable();
             $table->float('rating')->nullable();
-            $table->string('poster')->nullable(); // Stores Cloudinary URL
+            $table->string('poster')->nullable(); 
             $table->boolean('is_banned')->default(false);
             $table->timestamps();
         });

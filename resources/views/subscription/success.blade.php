@@ -134,12 +134,10 @@
     </footer>
 
     <script>
-        // Toggle profile dropdown
         document.getElementById('profile-toggle').addEventListener('click', function() {
             document.getElementById('profile-dropdown').classList.toggle('hidden');
         });
         
-        // Close dropdown when clicking outside
         document.addEventListener('click', function(event) {
             if (!event.target.closest('#profile-toggle') && !event.target.closest('#profile-dropdown')) {
                 document.getElementById('profile-dropdown').classList.add('hidden');

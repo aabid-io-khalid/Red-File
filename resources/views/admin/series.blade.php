@@ -13,6 +13,22 @@
         </button>
     </div>
 
+    <!-- Search Bar -->
+    <div class="mb-6">
+        <div class="relative">
+            <input 
+                type="text" 
+                id="series-search" 
+                placeholder="Search TV shows by title..." 
+                class="bg-gray-800 text-white w-full px-4 py-2 rounded-lg border border-gray-700 focus:outline-none focus:border-primary pl-10"
+            >
+            <i class="ri-search-line absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+        </div>
+        <div id="search-no-results" class="hidden text-center text-gray-400 mt-4">
+            No TV shows found matching your search.
+        </div>
+    </div>
+
     @if(session('success'))
         <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
             {{ session('success') }}
@@ -62,7 +78,7 @@
         @else
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 @foreach($localSeries as $series)
-                <div class="bg-dark rounded-lg overflow-hidden border border-gray-800 series-card relative">
+                <div class="bg-dark rounded-lg overflow-hidden border border-gray-800 series-card relative" data-title="{{ strtolower($series->title) }}">
                     <div class="relative">
                         <img 
                             src="{{ $series->poster ?? '/img/no-poster.jpg' }}" 
@@ -148,7 +164,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             @if(!empty($apiSeries))
                 @foreach($apiSeries as $series)
-                <div class="bg-dark rounded-lg overflow-hidden border border-gray-800 series-card relative">
+                <div class="bg-dark rounded-lg overflow-hidden border border-gray-800 series-card relative" data-title="{{ strtolower($series['name'] ?? 'unknown title') }}">
                     <div class="relative">
                         <img 
                             src="{{ $series['poster_path'] ? 'https://image.tmdb.org/t/p/w500' . $series['poster_path'] : '/img/no-poster.jpg' }}" 
@@ -321,7 +337,67 @@
 </div>
 
 <script>
-// Global Functions
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tab = urlParams.get('tab');
+    if (tab === 'api') switchTab('api');
+    initSearch();
+
+    document.getElementById('poster').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const preview = document.getElementById('poster-preview');
+        const noPreview = document.getElementById('no-preview');
+        
+        if (file) {
+            preview.src = URL.createObjectURL(file);
+            preview.classList.remove('hidden');
+            noPreview.classList.add('hidden');
+        } else {
+            preview.classList.add('hidden');
+            noPreview.classList.remove('hidden');
+        }
+    });
+
+    document.getElementById('tv-show-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const form = this;
+        const formData = new FormData(form);
+
+        fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: formData,
+            redirect: 'manual'
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => {
+                    throw new Error(`HTTP error! status: ${response.status} - ${text}`);
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                showMessage('success', data.message);
+                closeTvShowModal();
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                showMessage('error', data.message);
+                if (data.errors) {
+                    console.error('Validation errors:', data.errors);
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showMessage('error', `Error: ${error.message}`);
+        });
+    });
+});
+
 function switchTab(tab) {
     document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
     document.querySelectorAll('button[id$="-tab"]').forEach(button => {
@@ -334,6 +410,30 @@ function switchTab(tab) {
     const url = new URL(window.location.href);
     url.searchParams.set('tab', tab);
     window.history.replaceState({}, '', url);
+    filterSeries(); 
+}
+
+function initSearch() {
+    const searchInput = document.getElementById('series-search');
+    searchInput.addEventListener('input', filterSeries);
+}
+
+function filterSeries() {
+    const searchInput = document.getElementById('series-search');
+    const query = searchInput.value.trim().toLowerCase();
+    const activeTab = document.getElementById('local-content').classList.contains('hidden') ? 'api' : 'local';
+    const seriesCards = document.querySelectorAll(`#${activeTab}-content .series-card`);
+    const noResults = document.getElementById('search-no-results');
+    let hasVisibleSeries = false;
+
+    seriesCards.forEach(card => {
+        const title = card.getAttribute('data-title');
+        const matches = !query || title.includes(query);
+        card.classList.toggle('hidden', !matches);
+        if (matches) hasVisibleSeries = true;
+    });
+
+    noResults.classList.toggle('hidden', hasVisibleSeries || !query);
 }
 
 function openTvShowModal(mode, id = null) {
@@ -480,66 +580,5 @@ function showMessage(type, text) {
     container.insertBefore(message, container.querySelector('.mb-6'));
     setTimeout(() => message.remove(), 3000);
 }
-
-// Event Listeners
-document.addEventListener('DOMContentLoaded', function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const tab = urlParams.get('tab');
-    if (tab === 'api') switchTab('api');
-
-    document.getElementById('poster').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        const preview = document.getElementById('poster-preview');
-        const noPreview = document.getElementById('no-preview');
-        
-        if (file) {
-            preview.src = URL.createObjectURL(file);
-            preview.classList.remove('hidden');
-            noPreview.classList.add('hidden');
-        } else {
-            preview.classList.add('hidden');
-            noPreview.classList.remove('hidden');
-        }
-    });
-
-    document.getElementById('tv-show-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const form = this;
-        const formData = new FormData(form);
-
-        fetch(form.action, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            },
-            body: formData,
-            redirect: 'manual'
-        })
-        .then(response => {
-            if (!response.ok) {
-                return response.text().then(text => {
-                    throw new Error(`HTTP error! status: ${response.status} - ${text}`);
-                });
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                showMessage('success', data.message);
-                closeTvShowModal();
-                setTimeout(() => window.location.reload(), 1000);
-            } else {
-                showMessage('error', data.message);
-                if (data.errors) {
-                    console.error('Validation errors:', data.errors);
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showMessage('error', `Error: ${error.message}`);
-        });
-    });
-});
 </script>
 @endsection

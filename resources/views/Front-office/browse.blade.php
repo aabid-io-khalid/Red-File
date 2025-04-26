@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/10.0.0/swiper-bundle.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/10.0.0/swiper-bundle.min.js"></script>
     <title>PELIXS - Browse</title>
     <script>
         tailwind.config = {
@@ -14,12 +16,17 @@
                         primary: '#e50914',
                         dark: '#141414',
                         darker: '#0b0b0b'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
                     }
                 }
             }
         }
     </script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
         .movie-card:hover .card-overlay { opacity: 1; }
         .movie-card:hover .play-button { transform: translateY(0) scale(1); }
         .movie-card:hover .card-image { transform: scale(1.05); filter: brightness(0.7); }
@@ -27,7 +34,8 @@
         .genre-pill { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(4px); }
         .filter-dropdown { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
         .filter-dropdown.open { max-height: 500px; }
-        .genre-btn.active, .rating-btn.active { background-color: #e50914; color: white; }
+        .genre-btn.active { background-color: #e50914; color: white; }
+        .rating-btn.active { background-color: #e50914; color: white; }
         .year-slider::-webkit-slider-thumb {
             -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
             border-radius: 50%; background: #e50914; cursor: pointer;
@@ -35,75 +43,171 @@
         .year-slider::-moz-range-thumb {
             width: 18px; height: 18px; border-radius: 50%; background: #e50914; cursor: pointer;
         }
-        .profile-dropdown { display: none; }
-        .profile-dropdown.show { display: block; }
+        .header-container {
+            background: rgba(11, 11, 11, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+        .nav-link {
+            position: relative;
+            padding: 0.5rem 0;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: #e50914;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+        .nav-link.active {
+            color: #e50914;
+            font-weight: 600;
+        }
+        .logo-text {
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(229, 9, 20, 0.5);
+            background: linear-gradient(135deg, #ff0a18, #e50914);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .search-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        .search-input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(229, 9, 20, 0.5);
+            box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.25);
+        }
+        .auth-button {
+            background: linear-gradient(135deg, #ff0a18, #e50914);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(229, 9, 20, 0.3);
+        }
+        .auth-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(229, 9, 20, 0.4);
+        }
+        .logout-button {
+            background: linear-gradient(135deg, #ff0a18, #e50914);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(229, 9, 20, 0.3);
+        }
+        .logout-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(229, 9, 20, 0.4);
+        }
     </style>
 </head>
 <body class="bg-darker text-white font-sans">
-    <header class="bg-dark py-4 px-6 shadow-lg fixed top-0 w-full z-50">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-3xl font-bold text-primary tracking-wider">PELIXS</h1>
-            <nav class="hidden md:flex space-x-6">
-                <a href="/home" class="hover:text-primary transition">Home</a>
-                <a href="/browse" class="text-primary font-medium">Browse</a>
-                <a href="/movies" class="hover:text-primary transition">Movies</a>
-                <a href="/shows" class="hover:text-primary transition">TV Shows</a>
-                <a href="/anime" class="hover:text-primary transition">Anime</a>
-            </nav>
-            <div class="flex items-center space-x-4">
-                <form id="search-form" action="/browse" method="get" class="flex items-center w-64">
-                    @if($type)
-                        <input type="hidden" name="type" value="{{ $type }}">
-                    @endif
-                    <div class="flex bg-gray-800 border border-gray-700 rounded-full items-center w-full">
-                        <input id="search-input" type="text" name="search" placeholder="Search..."
-                               value="{{ $search }}" class="bg-gray-800 text-white px-4 py-2 rounded-l-full text-sm focus:outline-none w-full">
-                        <button type="submit" class="text-xl p-2 text-white"><i class="ri-search-line"></i></button>
+    <!-- Header -->
+    <header class="header-container py-4 fixed top-0 w-full z-50 transition-all duration-300">
+        <div class="container mx-auto px-6">
+            <div class="flex justify-between items-center">
+                <!-- Logo -->
+                <h1 class="logo-text text-3xl">PELIXS</h1>
+                <!-- Navigation -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="/home" class="nav-link {{ request()->is('home') ? 'active' : '' }}">Home</a>
+                    <a href="/browse" class="nav-link {{ request()->is('browse') ? 'active' : '' }}">Browse</a>
+                    <a href="/movies" class="nav-link {{ request()->is('movies') ? 'active' : '' }}">Movies</a>
+                    <a href="/shows" class="nav-link {{ request()->is('shows') ? 'active' : '' }}">TV Shows</a>
+                    <a href="/anime" class="nav-link {{ request()->is('anime') ? 'active' : '' }}">Anime</a>
+                    @auth
+                        @can('access-community-chat')
+                            <a href="{{ url('/community') }}" class="nav-link {{ request()->is('community') ? 'active' : '' }}">Community</a>
+                            <a href="/mylist" class="nav-link {{ request()->is('mylist') ? 'active' : '' }}">My List</a>
+                        @endcan
+                        <a href="{{ url('/subscription') }}" class="nav-link {{ request()->is('subscription') ? 'active' : '' }}">Subscription</a>
+                    @else
+                        <a href="{{ url('/login') }}" class="nav-link">Community</a>
+                    @endauth
+                </nav>
+                <!-- Search Bar & Auth -->
+                <div class="flex items-center space-x-5">
+                    <div class="relative flex items-center">
+                        <form id="search-form" action="/browse" method="get" class="flex items-center">
+                            @if(request()->has('type'))
+                                <input type="hidden" name="type" value="{{ request()->query('type') }}">
+                            @endif
+                            <div class="relative">
+                                <input id="search-input" type="text" name="search" placeholder="Search..." 
+                                       value="{{ request()->query('search') }}"
+                                       class="search-input pl-10 pr-4 py-2 rounded-full text-sm focus:outline-none w-52">
+                                <button type="submit" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition">
+                                    <i class="ri-search-line"></i>
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                </form>
-                <button class="text-xl p-2 rounded-full hover:bg-gray-800 transition"><i class="ri-notification-3-line"></i></button>
-                <div class="relative">
-                    <button id="profile-toggle" class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                        <i class="ri-user-line text-white"></i>
-                    </button>
-                    <div id="profile-dropdown" class="profile-dropdown absolute right-0 top-full mt-2 w-48 bg-dark border border-gray-700 rounded-lg shadow-lg hidden">
-                        <ul class="py-1">
-                            <li><a href="/profile" class="block px-4 py-2 hover:bg-gray-800 transition flex items-center"><i class="ri-user-line mr-2"></i> Profile</a></li>
-                            <li><a href="/settings" class="block px-4 py-2 hover:bg-gray-800 transition flex items-center"><i class="ri-settings-3-line mr-2"></i> Settings</a></li>
-                            <li>
-                                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">@csrf</form>
-                                <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" 
-                                   class="block px-4 py-2 hover:bg-gray-800 transition text-red-500 hover:text-red-400 flex items-center">
-                                    <i class="ri-logout-box-r-line mr-2"></i> Logout
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+                    @guest
+                        <a href="{{ url('/login') }}"
+                           class="auth-button text-white px-5 py-2 rounded-full flex items-center">
+                            <i class="ri-login-box-line mr-2"></i> Log In
+                        </a>
+                    @else
+                        <form action="{{ route('logout') }}" method="POST" class="inline-flex">
+                            @csrf
+                            <button type="submit"
+                                    class="logout-button text-white px-5 py-2 rounded-full flex items-center">
+                                <i class="ri-logout-box-r-line mr-2"></i> Log Out
+                            </button>
+                        </form>
+                    @endauth
                 </div>
             </div>
         </div>
     </header>
+</body>
+</html>
 
     <main class="pt-24 px-4 md:px-6 pb-16">
         <div class="container mx-auto">
+            <!-- Title and Content Type Toggle -->
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
                 <h1 class="text-3xl font-bold mb-4 md:mb-0">
-                    @if($search) Search Results for "{{ $search }}"
-                    @elseif(request()->has('list') && request()->query('list') == 'favorites') My Favorites
-                    @elseif(request()->has('filter') && request()->query('filter') == 'upcoming') Upcoming Movies
-                    @elseif($sort == 'trending') Trending Now
-                    @elseif($sort == 'release_date' && $order == 'desc') New Releases
-                    @elseif($sort == 'vote_average' && $order == 'desc') Top Rated {{ $type == 'tv' ? 'TV Shows' : 'Movies' }}
-                    @else Browse {{ $type == 'tv' ? 'TV Shows' : ($type == 'movie' ? 'Movies' : 'Content') }} @endif
+                    @if(request()->has('search'))
+                        Search Results for "{{ request()->query('search') }}"
+                    @elseif(request()->has('list') && request()->query('list') == 'favorites')
+                        My Favorites
+                    @elseif(request()->has('filter') && request()->query('filter') == 'upcoming')
+                        Upcoming Movies
+                    @elseif(request()->has('sort') && request()->query('sort') == 'trending')
+                        Trending Now
+                    @elseif(request()->has('sort') && request()->query('sort') == 'release_date' && request()->has('order') && request()->query('order') == 'desc')
+                        New Releases
+                    @elseif(request()->has('sort') && request()->query('sort') == 'vote_average' && request()->has('order') && request()->query('order') == 'desc')
+                        Top Rated {{ request()->query('type') == 'tv' ? 'TV Shows' : 'Movies' }}
+                    @else
+                        Browse {{ request()->query('type') == 'tv' ? 'TV Shows' : 'Movies' }}
+                    @endif
                 </h1>
+
                 <div class="flex space-x-3">
-                    <a href="{{ url()->current() . '?' . http_build_query(array_merge(request()->except('type'), ['type' => 'movie'])) }}"
-                       class="px-4 py-2 rounded-full {{ $type == 'movie' ? 'bg-primary' : 'bg-gray-800 hover:bg-gray-700' }} transition">Movies</a>
-                    <a href="{{ url()->current() . '?' . http_build_query(array_merge(request()->except('type'), ['type' => 'tv'])) }}"
-                       class="px-4 py-2 rounded-full {{ $type == 'tv' ? 'bg-primary' : 'bg-gray-800 hover:bg-gray-700' }} transition">TV Shows</a>
+                    <a href="{{ request()->fullUrlWithQuery(['type' => 'movie']) }}" 
+                       class="px-4 py-2 rounded-full {{ (!request()->has('type') || request()->query('type') == 'movie') ? 'bg-primary' : 'bg-gray-800 hover:bg-gray-700' }} transition">
+                        Movies
+                    </a>
+                    <a href="{{ request()->fullUrlWithQuery(['type' => 'tv']) }}" 
+                       class="px-4 py-2 rounded-full {{ (request()->has('type') && request()->query('type') == 'tv') ? 'bg-primary' : 'bg-gray-800 hover:bg-gray-700' }} transition">
+                        TV Shows
+                    </a>
                 </div>
             </div>
 
+            <!-- Filters Section -->
             <div class="mb-8 bg-dark rounded-xl p-4">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-semibold">Filters</h2>
@@ -112,193 +216,118 @@
                         <i id="filter-icon" class="ri-arrow-down-s-line ml-1 text-lg transition-transform"></i>
                     </button>
                 </div>
+                
                 <div id="filter-dropdown" class="filter-dropdown">
                     <form id="filter-form" action="/browse" method="get" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 py-4">
-                        @if($type)
-                            <input type="hidden" name="type" value="{{ $type }}">
+                        <!-- Preserve existing query parameters -->
+                        @if(request()->has('type'))
+                            <input type="hidden" name="type" value="{{ request()->query('type') }}">
                         @endif
-                        @if($search)
-                            <input type="hidden" name="search" value="{{ $search }}">
+                        @if(request()->has('search'))
+                            <input type="hidden" name="search" value="{{ request()->query('search') }}">
                         @endif
-                        @if(request()->has('list'))
-                            <input type="hidden" name="list" value="{{ request()->query('list') }}">
-                        @endif
-                        @if(request()->has('filter'))
-                            <input type="hidden" name="filter" value="{{ request()->query('filter') }}">
-                        @endif
+                        
+                        <!-- Genre Filter -->
                         <div>
-                            <label class="block text-gray-400 mb-2">Genres</label>
-                            <div class="flex flex-wrap gap-2">
-                                @foreach($genres as $genre)
-                                    <button type="button" class="genre-btn px-3 py-1 rounded-full bg-gray-800 hover:bg-gray-700 transition text-sm {{ in_array((string)$genre['id'], array_map('strval', $selectedGenres)) ? 'active' : '' }}"
-                                            data-genre="{{ $genre['id'] }}">{{ $genre['name'] }}</button>
-                                @endforeach
+                            <label class="block text-gray-400 mb-2">Genre</label>
+                            <div class="flex flex-wrap gap-2" id="genre-buttons">
+                                <!-- Genres will be populated by JavaScript -->
+                                <div class="w-full h-8 bg-gray-800 animate-pulse rounded-full"></div>
                             </div>
-                            <input type="hidden" name="genres[]" id="selected-genres" value="">
+                            <input type="hidden" name="genre" id="selected-genre" value="{{ request()->query('genre', '') }}">
                         </div>
+                        
+                        <!-- Year Filter -->
                         <div>
                             <label class="block text-gray-400 mb-2">Year</label>
                             <div class="flex flex-col space-y-2">
-                                <input type="range" min="1900" max="2025" value="{{ $year ?: '2025' }}"
-                                       class="year-slider w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer" id="year-slider">
+                                <input type="range" min="1900" max="2025" 
+                                       value="{{ request()->query('year', '2025') }}" 
+                                       class="year-slider w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer" 
+                                       id="year-slider">
                                 <div class="flex justify-between">
                                     <span>1900</span>
-                                    <span id="year-value">{{ $year ?: '2025' }}</span>
+                                    <span id="year-value">{{ request()->query('year', '2025') }}</span>
                                     <span>2025</span>
                                 </div>
-                                <input type="hidden" name="year" id="year-input" value="{{ $year ?: '2025' }}">
+                                <input type="hidden" name="year" id="year-input" value="{{ request()->query('year', '2025') }}">
                             </div>
                         </div>
+                        
+                        <!-- Rating Filter -->
                         <div>
                             <label class="block text-gray-400 mb-2">Minimum Rating</label>
                             <div class="flex items-center space-x-2">
-                                @foreach([1, 2, 3, 4, 5, 6, 7, 8, 9] as $r)
-                                    <button type="button" class="rating-btn w-8 h-8 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 transition {{ $rating == $r ? 'active' : '' }}"
-                                            data-rating="{{ $r }}">{{ $r }}</button>
+                                @foreach([1, 2, 3, 4, 5, 6, 7, 8, 9] as $rating)
+                                <button type="button" 
+                                        class="rating-btn w-8 h-8 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 transition {{ request()->query('rating') == $rating ? 'active' : '' }}"
+                                        data-rating="{{ $rating }}">
+                                    {{ $rating }}
+                                </button>
                                 @endforeach
                             </div>
-                            <input type="hidden" name="rating" id="selected-rating" value="{{ $rating }}">
+                            <input type="hidden" name="rating" id="selected-rating" value="{{ request()->query('rating', '') }}">
                         </div>
+                        
+                        <!-- Sort Filter -->
                         <div>
                             <label class="block text-gray-400 mb-2">Sort By</label>
                             <select name="sort" class="w-full bg-gray-800 text-white px-4 py-2 rounded-lg focus:outline-none border border-gray-700">
-                                <option value="popularity" {{ $sort == 'popularity' ? 'selected' : '' }}>Popularity</option>
-                                <option value="release_date" {{ $sort == 'release_date' ? 'selected' : '' }}>Release Date</option>
-                                <option value="vote_average" {{ $sort == 'vote_average' ? 'selected' : '' }}>Rating</option>
-                                <option value="trending" {{ $sort == 'trending' ? 'selected' : '' }}>Trending</option>
+                                <option value="popularity" {{ request()->query('sort') == 'popularity' ? 'selected' : '' }}>Popularity</option>
+                                <option value="release_date" {{ request()->query('sort') == 'release_date' ? 'selected' : '' }}>Release Date</option>
+                                <option value="vote_average" {{ request()->query('sort') == 'vote_average' ? 'selected' : '' }}>Rating</option>
+                                <option value="trending" {{ request()->query('sort') == 'trending' ? 'selected' : '' }}>Trending</option>
                             </select>
+                            
                             <label class="block text-gray-400 mt-4 mb-2">Order</label>
                             <div class="flex space-x-3">
                                 <label class="inline-flex items-center">
-                                    <input type="radio" name="order" value="desc" class="form-radio text-primary" {{ $order == 'desc' ? 'checked' : '' }}>
+                                    <input type="radio" name="order" value="desc" class="form-radio text-primary" 
+                                           {{ !request()->has('order') || request()->query('order') == 'desc' ? 'checked' : '' }}>
                                     <span class="ml-2">Descending</span>
                                 </label>
                                 <label class="inline-flex items-center">
-                                    <input type="radio" name="order" value="asc" class="form-radio text-primary" {{ $order == 'asc' ? 'checked' : '' }}>
+                                    <input type="radio" name="order" value="asc" class="form-radio text-primary"
+                                           {{ request()->query('order') == 'asc' ? 'checked' : '' }}>
                                     <span class="ml-2">Ascending</span>
                                 </label>
                             </div>
                         </div>
+                        
+                        <!-- Apply Filters Button -->
                         <div class="md:col-span-2 lg:col-span-4 flex justify-end mt-4">
-                            <button type="button" id="clear-filters" class="px-6 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg mr-4 transition">Clear Filters</button>
-                            <button type="submit" class="px-6 py-2 bg-primary hover:bg-primary/90 rounded-lg transition">Apply Filters</button>
+                            <button type="button" id="clear-filters" class="px-6 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg mr-4 transition">
+                                Clear Filters
+                            </button>
+                            <button type="submit" class="px-6 py-2 bg-primary hover:bg-primary/90 rounded-lg transition">
+                                Apply Filters
+                            </button>
                         </div>
                     </form>
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
-                @forelse ($content as $item)
-                    @php
-                        $isTmdb = isset($item['poster_path']);
-                        $isLocal = $item['is_local'] ?? false;
-                        $contentType = $item['content_type'] === 'shows' ? 'shows' : 'movie';
-                        $id = is_numeric($item['id']) ? (int)$item['id'] : null; // Sanitize ID
-                        $title = $isTmdb ? ($item['title'] ?? $item['name'] ?? 'Untitled') : ($item['title'] ?? 'Untitled');
-                        $posterPath = $isTmdb
-                            ? ($item['poster_path'] ? "https://image.tmdb.org/t/p/w500{$item['poster_path']}" : '/api/placeholder/500/750')
-                            : ($item['poster'] ?? '/api/placeholder/500/750');
-                        $releaseYear = $isTmdb
-                            ? (isset($item[$contentType === 'movie' ? 'release_date' : 'first_air_date'])
-                                ? (new DateTime($item[$contentType === 'movie' ? 'release_date' : 'first_air_date']))->format('Y')
-                                : 'N/A')
-                            : ($item['year'] ?? 'N/A');
-                        $voteAverage = $isTmdb ? ($item['vote_average'] ?? 'N/A') : ($item['rating'] ?? 'N/A');
-                        $genres = $item['genre_ids'] ?? [];
-                    @endphp
-                    @if($id)
-                        <a href="{{ $isLocal ? route($contentType === 'shows' ? 'tv-shows.local' : 'movies.local', $id) : route($contentType === 'shows' ? 'tv-shows.details' : 'movies.show', $id) }}"
-                           class="movie-card group rounded-xl overflow-hidden shadow-xl bg-dark border border-gray-800 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/20">
-                            <div class="relative aspect-[2/3] overflow-hidden">
-                                <img src="{{ $posterPath }}" alt="{{ $title }}"
-                                     class="card-image w-full h-full object-cover transition-all duration-500">
-                                <div class="card-overlay absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-0 transition-opacity duration-300 p-4 flex flex-col justify-between">
-                                    <div class="flex justify-between items-start">
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-primary text-white">
-                                            {{ $contentType === 'shows' ? 'TV' : 'Movie' }}
-                                        </span>
-                                        <button class="w-9 h-9 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center text-gray-300 hover:text-primary border border-gray-700 transition-colors">
-                                            <i class="ri-heart-line"></i>
-                                        </button>
-                                    </div>
-                                    <div>
-                                        <div class="flex gap-2 mb-3">
-                                            <span class="rating-pill text-xs px-2 py-1 rounded-full flex items-center">
-                                                <i class="ri-star-fill text-yellow-500 mr-1"></i>
-                                                <span>{{ is_numeric($voteAverage) ? number_format($voteAverage, 1) : $voteAverage }}</span>
-                                            </span>
-                                            <span class="genre-pill text-xs px-2 py-1 rounded-full">{{ $releaseYear }}</span>
-                                        </div>
-                                        <div class="play-button w-12 h-12 mx-auto bg-primary rounded-full flex items-center justify-center text-white shadow-lg transform translate-y-8 scale-75 transition-all duration-300">
-                                            <i class="ri-play-fill text-xl"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="p-4">
-                                <h3 class="font-bold text-lg tracking-wide mb-1 truncate">{{ $title }}</h3>
-                                <div class="flex flex-wrap gap-1">
-                                    @foreach($genres as $genreId)
-                                        <span class="text-xs text-gray-400 bg-gray-800/80 px-2 py-0.5 rounded">
-                                            {{ $genreMap[$genreId] ?? 'Unknown' }}
-                                        </span>
-                                    @endforeach
-                                </div>
-                            </div>
-                        </a>
-                    @endif
-                @empty
-                    <div class="col-span-full text-center py-20">
-                        <i class="ri-film-line text-6xl text-gray-600 mb-4"></i>
-                        <h3 class="text-2xl font-medium text-gray-400">No results found</h3>
-                        <p class="text-gray-500 mt-2">Try adjusting your filters or search terms.</p>
+            <!-- Results Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6" id="results-grid">
+                <!-- Loading placeholders -->
+                @for ($i = 0; $i < 12; $i++)
+                <div class="bg-dark rounded-xl overflow-hidden shadow-xl animate-pulse">
+                    <div class="aspect-[2/3] bg-gray-800"></div>
+                    <div class="p-4 space-y-2">
+                        <div class="h-4 bg-gray-800 rounded"></div>
+                        <div class="h-3 bg-gray-800 rounded w-3/4"></div>
                     </div>
-                @endforelse
-            </div>
-
-            @if($totalPages > 1)
-                <div class="mt-10 flex justify-center items-center">
-                    <nav class="flex items-center space-x-1">
-                        @if($page > 1)
-                            <a href="{{ url()->current() . '?' . http_build_query(array_merge(request()->all(), ['page' => $page - 1])) }}"
-                               class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 text-primary transition">
-                                <i class="ri-arrow-left-s-line"></i>
-                            </a>
-                        @endif
-                        @php
-                            $startPage = max(1, $page - 2);
-                            $endPage = min($totalPages, $page + 2);
-                            if ($startPage > 1) {
-                                echo '<a href="' . url()->current() . '?' . http_build_query(array_merge(request()->all(), ['page' => 1])) . '" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 text-white transition">1</a>';
-                                if ($startPage > 2) {
-                                    echo '<span class="w-10 h-10 flex items-center justify-center text-gray-400">...</span>';
-                                }
-                            }
-                        @endphp
-                        @for($i = $startPage; $i <= $endPage; $i++)
-                            <a href="{{ url()->current() . '?' . http_build_query(array_merge(request()->all(), ['page' => $i])) }}"
-                               class="w-10 h-10 flex items-center justify-center rounded-full {{ $i == $page ? 'bg-primary' : 'bg-gray-800 hover:bg-gray-700' }} text-white transition">{{ $i }}</a>
-                        @endfor
-                        @php
-                            if ($endPage < $totalPages) {
-                                if ($endPage < $totalPages - 1) {
-                                    echo '<span class="w-10 h-10 flex items-center justify-center text-gray-400">...</span>';
-                                }
-                                echo '<a href="' . url()->current() . '?' . http_build_query(array_merge(request()->all(), ['page' => $totalPages])) . '" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 text-white transition">' . $totalPages . '</a>';
-                            }
-                        @endphp
-                        @if($page < $totalPages)
-                            <a href="{{ url()->current() . '?' . http_build_query(array_merge(request()->all(), ['page' => $page + 1])) }}"
-                               class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 text-primary transition">
-                                <i class="ri-arrow-right-s-line"></i>
-                            </a>
-                        @endif
-                    </nav>
                 </div>
-            @endif
+                @endfor
+            </div>
+            
+            <!-- Pagination -->
+            <div class="mt-10 flex justify-center items-center" id="pagination-container">
+                <!-- pages b javascript -->
+            </div>
         </div>
     </main>
-
+    
     <footer class="bg-dark py-8 border-t border-gray-800">
         <div class="container mx-auto px-4">
             <div class="text-center text-gray-400 text-sm">
@@ -308,79 +337,350 @@
     </footer>
 
     <script>
-        document.getElementById('toggle-filters').addEventListener('click', function() {
+        const API_KEY = 'fcc76d42a33f4349db9ab3a42d7cc207'; 
+        const BASE_URL = 'https://api.themoviedb.org/3';
+        const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p';
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const contentType = urlParams.get('type') || 'movie';
+        const searchQuery = urlParams.get('search') || '';
+        const selectedGenre = urlParams.get('genre') || '';
+        const selectedYear = urlParams.get('year') || '2025';
+        const selectedRating = urlParams.get('rating') || '';
+        const sortBy = urlParams.get('sort') || 'popularity';
+        const orderBy = urlParams.get('order') || 'desc';
+        const currentPage = parseInt(urlParams.get('page') || '1');
+        const filterOption = urlParams.get('filter') || '';
+        const listOption = urlParams.get('list') || '';
+        
+        const genreMap = {};
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleFilters = document.getElementById('toggle-filters');
             const filterDropdown = document.getElementById('filter-dropdown');
-            const filterIcon = document.getElementById('filter-icon');
             const filterText = document.getElementById('filter-text');
-            filterDropdown.classList.toggle('open');
-            filterIcon.classList.toggle('rotate-180');
-            filterText.textContent = filterDropdown.classList.contains('open') ? 'Hide Filters' : 'Show Filters';
+            const filterIcon = document.getElementById('filter-icon');
+            
+            toggleFilters.addEventListener('click', function() {
+                filterDropdown.classList.toggle('open');
+                if (filterDropdown.classList.contains('open')) {
+                    filterText.textContent = 'Hide Filters';
+                    filterIcon.style.transform = 'rotate(180deg)';
+                } else {
+                    filterText.textContent = 'Show Filters';
+                    filterIcon.style.transform = 'rotate(0)';
+                }
+            });
+            
+            init();
         });
-
+        
         const yearSlider = document.getElementById('year-slider');
         const yearValue = document.getElementById('year-value');
         const yearInput = document.getElementById('year-input');
-        yearSlider.addEventListener('input', function() {
-            yearValue.textContent = this.value || '2025';
-            yearInput.value = this.value;
-        });
-
+        
+        if (yearSlider) {
+            yearSlider.addEventListener('input', function() {
+                yearValue.textContent = this.value;
+                yearInput.value = this.value;
+            });
+        }
+        
         const ratingButtons = document.querySelectorAll('.rating-btn');
+        const selectedRatingInput = document.getElementById('selected-rating');
+        
         ratingButtons.forEach(button => {
             button.addEventListener('click', function() {
+                const rating = this.getAttribute('data-rating');
+                
                 ratingButtons.forEach(btn => btn.classList.remove('active'));
                 this.classList.add('active');
-                document.getElementById('selected-rating').value = this.dataset.rating;
+                
+                selectedRatingInput.value = rating;
             });
         });
-
-        const selectedGenres = @json($selectedGenres);
-        document.querySelectorAll('.genre-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const genreId = this.dataset.genre;
-                const index = selectedGenres.indexOf(genreId);
-                if (index === -1) {
-                    selectedGenres.push(genreId);
-                    this.classList.add('active');
-                } else {
-                    selectedGenres.splice(index, 1);
-                    this.classList.remove('active');
-                }
-                const form = document.getElementById('filter-form');
-                document.querySelectorAll('input[name="genres[]"]').forEach(input => input.remove());
-                selectedGenres.forEach(genre => {
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = 'genres[]';
-                    input.value = genre;
-                    form.appendChild(input);
-                });
-            });
-        });
-
-        document.getElementById('clear-filters').addEventListener('click', function() {
-            document.getElementById('filter-form').reset();
+        
+        const clearFiltersBtn = document.getElementById('clear-filters');
+        
+        clearFiltersBtn.addEventListener('click', function() {
             document.querySelectorAll('.genre-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.rating-btn').forEach(btn => btn.classList.remove('active'));
-            selectedGenres.length = 0;
-            document.querySelectorAll('input[name="genres[]"]').forEach(input => input.remove());
-            yearSlider.value = '2025';
+            document.getElementById('selected-genre').value = '';
+            
+            yearSlider.value = 2025;
             yearValue.textContent = '2025';
             yearInput.value = '2025';
+            
+            ratingButtons.forEach(btn => btn.classList.remove('active'));
+            selectedRatingInput.value = '';
+            
             document.querySelector('select[name="sort"]').value = 'popularity';
             document.querySelector('input[name="order"][value="desc"]').checked = true;
         });
-
-        const profileToggle = document.getElementById('profile-toggle');
-        const profileDropdown = document.getElementById('profile-dropdown');
-        profileToggle.addEventListener('click', function() {
-            profileDropdown.classList.toggle('show');
-        });
-        document.addEventListener('click', function(event) {
-            if (!profileToggle.contains(event.target) && !profileDropdown.contains(event.target)) {
-                profileDropdown.classList.remove('show');
+        
+        async function fetchGenres() {
+            try {
+                const movieResponse = await fetch(`${BASE_URL}/genre/movie/list?api_key=${API_KEY}`);
+                const movieData = await movieResponse.json();
+                
+                movieData.genres.forEach(genre => {
+                    genreMap[genre.id] = genre.name;
+                });
+                
+                const tvResponse = await fetch(`${BASE_URL}/genre/tv/list?api_key=${API_KEY}`);
+                const tvData = await tvResponse.json();
+                
+                tvData.genres.forEach(genre => {
+                    genreMap[genre.id] = genre.name;
+                });
+                
+                populateGenreButtons(contentType === 'tv' ? tvData.genres : movieData.genres);
+            } catch (error) {
+                console.error('Error fetching genres:', error);
             }
-        });
+        }
+        
+        function populateGenreButtons(genres) {
+            const genreContainer = document.getElementById('genre-buttons');
+            genreContainer.innerHTML = '';
+            
+            const allBtn = document.createElement('button');
+            allBtn.type = 'button';
+            allBtn.className = `genre-btn px-3 py-1 rounded-full bg-gray-800 hover:bg-gray-700 text-sm transition ${selectedGenre === '' ? 'active' : ''}`;
+            allBtn.textContent = 'All';
+            allBtn.setAttribute('data-genre', '');
+            genreContainer.appendChild(allBtn);
+            
+            genres.forEach(genre => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = `genre-btn px-3 py-1 rounded-full bg-gray-800 hover:bg-gray-700 text-sm transition ${selectedGenre.split(',').includes(genre.id.toString()) ? 'active' : ''}`;
+                btn.textContent = genre.name;
+                btn.setAttribute('data-genre', genre.id);
+                genreContainer.appendChild(btn);
+            });
+            
+            document.querySelectorAll('.genre-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const genre = this.getAttribute('data-genre');
+                    
+                    this.classList.toggle('active');
+                    
+                    const selectedGenres = Array.from(document.querySelectorAll('.genre-btn.active')).map(btn => btn.getAttribute('data-genre')).join(',');
+                    document.getElementById('selected-genre').value = selectedGenres;
+                });
+            });
+        }
+        
+        async function fetchContent() {
+            try {
+                let apiUrl = '';
+                let queryParams = `api_key=${API_KEY}&page=${currentPage}`;
+            
+                if (searchQuery) {
+                    apiUrl = `${BASE_URL}/search/${contentType}`;
+                    queryParams += `&query=${encodeURIComponent(searchQuery)}`;
+                }
+                else if (filterOption === 'upcoming' && contentType === 'movie') {
+                    apiUrl = `${BASE_URL}/movie/upcoming`;
+                }
+                else if (sortBy === 'trending') {
+                    apiUrl = `${BASE_URL}/trending/${contentType}/week`;
+                }
+                else if (listOption === 'favorites') {
+                    apiUrl = `${BASE_URL}/${contentType}/popular`;
+                }
+                else {
+                    apiUrl = `${BASE_URL}/discover/${contentType}`;
+                    
+                    if (sortBy && sortBy !== 'trending') {
+                        queryParams += `&sort_by=${sortBy}.${orderBy}`;
+                    }
+                    
+                    if (selectedGenre) {
+                        queryParams += `&with_genres=${selectedGenre}`;
+                    }
+                    
+                    if (selectedYear) {
+                        if (contentType === 'movie') {
+                            queryParams += `&primary_release_year=${selectedYear}`;
+                        } else {
+                            queryParams += `&first_air_date_year=${selectedYear}`;
+                        }
+                    }
+                    
+                    if (selectedRating) {
+                        queryParams += `&vote_average.gte=${selectedRating}`;
+                    }
+                }
+                
+                const response = await fetch(`${apiUrl}?${queryParams}`);
+                const data = await response.json();
+                
+                displayResults(data.results);
+                
+                displayPagination(data.page, data.total_pages);
+                
+            } catch (error) {
+                console.error('Error fetching content:', error);
+                displayError();
+            }
+        }
+        
+        function displayResults(results) {
+            const resultsGrid = document.getElementById('results-grid');
+            resultsGrid.innerHTML = '';
+            
+            if (results.length === 0) {
+                resultsGrid.innerHTML = `
+                    <div class="col-span-full text-center py-20">
+                        <i class="ri-film-line text-6xl text-gray-600 mb-4"></i>
+                        <h3 class="text-2xl font-medium text-gray-400">No results found</h3>
+                        <p class="text-gray-500 mt-2">Try adjusting your filters or search terms</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            results.forEach(item => {
+                const title = contentType === 'movie' ? item.title : item.name;
+                const posterPath = item.poster_path;
+                const releaseDate = contentType === 'movie' ? item.release_date : item.first_air_date;
+                const releaseYear = releaseDate ? new Date(releaseDate).getFullYear() : '';
+                const id = item.id;
+                const voteAverage = item.vote_average;
+                
+                const genreNames = (item.genre_ids || []).map(id => genreMap[id] || '').filter(Boolean);
+                
+                const card = document.createElement('div');
+                card.className = 'movie-card group rounded-xl overflow-hidden shadow-xl bg-dark border border-gray-800 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/20';
+                
+                card.innerHTML = `
+                    <div class="relative aspect-[2/3] overflow-hidden">
+                        <img src="${posterPath ? `${IMAGE_BASE_URL}/w500${posterPath}` : '/api/placeholder/500/750'}" 
+                             alt="${title}" 
+                             class="card-image w-full h-full object-cover transition-all duration-500">
+                        <div class="card-overlay absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-0 transition-opacity duration-300 p-4 flex flex-col justify-between">
+                            <div class="flex justify-between items-start">
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-primary text-white">
+                                    ${contentType === 'tv' ? 'TV' : 'HD'}
+                                </span>
+                                <button class="w-9 h-9 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center text-gray-300 hover:text-primary border border-gray-700 transition-colors">
+                                    <i class="ri-heart-line"></i>
+                                </button>
+                            </div>
+                            <div>
+                                <div class="flex gap-2 mb-3">
+                                    <span class="rating-pill text-xs px-2 py-1 rounded-full flex items-center">
+                                        <i class="ri-star-fill text-yellow-500 mr-1"></i>
+                                        <span>${voteAverage.toFixed(1)}</span>
+                                    </span>
+                                    <span class="genre-pill text-xs px-2 py-1 rounded-full">${releaseYear}</span>
+                                </div>
+                                <a href="/${contentType}/${id}" class="block">
+                                    <div class="play-button w-12 h-12 mx-auto bg-primary rounded-full flex items-center justify-center text-white shadow-lg transform translate-y-8 scale-75 transition-all duration-300">
+                                        <i class="ri-play-fill text-xl"></i>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg tracking-wide mb-1 truncate">${title}</h3>
+                        <div class="flex flex-wrap gap-1">
+                            ${genreNames.slice(0, 2).map(genre => 
+                                `<span class="text-xs text-gray-400 bg-gray-800/80 px-2 py-0.5 rounded">${genre}</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+                `;
+                
+                resultsGrid.appendChild(card);
+            });
+        }
+        
+        function displayPagination(currentPage, totalPages) {
+            const paginationContainer = document.getElementById('pagination-container');
+            paginationContainer.innerHTML = '';
+            
+            if (totalPages <= 1) {
+                return;
+            }
+            
+            const pagination = document.createElement('div');
+            pagination.className = 'flex space-x-1';
+            
+            if (currentPage > 1) {
+                const prevButton = createPaginationButton('previous', currentPage - 1, '<i class="ri-arrow-left-s-line"></i>');
+                pagination.appendChild(prevButton);
+            }
+            
+            const startPage = Math.max(1, currentPage - 2);
+            const endPage = Math.min(totalPages, currentPage + 2);
+            
+            if (startPage > 1) {
+                const firstButton = createPaginationButton('page', 1, '1');
+                pagination.appendChild(firstButton);
+                
+                if (startPage > 2) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'w-10 h-10 flex items-center justify-center text-gray-400';
+                    ellipsis.textContent = '...';
+                    pagination.appendChild(ellipsis);
+                }
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const pageButton = createPaginationButton('page', i, i.toString(), i === currentPage);
+                pagination.appendChild(pageButton);
+            }
+            
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'w-10 h-10 flex items-center justify-center text-gray-400';
+                    ellipsis.textContent = '...';
+                    pagination.appendChild(ellipsis);
+                }
+                const lastButton = createPaginationButton('page', totalPages, totalPages.toString());
+                pagination.appendChild(lastButton);
+            }
+            
+            if (currentPage < totalPages) {
+                const nextButton = createPaginationButton('next', currentPage + 1, '<i class="ri-arrow-right-s-line"></i>');
+                pagination.appendChild(nextButton);
+            }
+            
+            paginationContainer.appendChild(pagination);
+        }
+        
+        function createPaginationButton(type, page, content, isActive = false) {
+            const button = document.createElement('a');
+            button.href = type === 'page' ? `?type=${contentType}&page=${page}` : `?type=${contentType}&page=${page}`;
+            button.className = `w-10 h-10 flex items-center justify-center rounded-full ${isActive ? 'bg-primary' : 'bg-dark hover:bg-gray-700'} text-white transition`;
+            button.innerHTML = content;
+            return button;
+        }
+
+        async function init() {
+            await fetchGenres();
+            await fetchContent();
+        }
+
+                    document.addEventListener("DOMContentLoaded", function () {
+    const profileToggle = document.getElementById("profile-toggle");
+    const profileDropdown = document.getElementById("profile-dropdown");
+
+    profileToggle.addEventListener("click", function () {
+        profileDropdown.classList.toggle("hidden");
+    });
+
+    document.addEventListener("click", function (event) {
+        if (!profileToggle.contains(event.target) && !profileDropdown.contains(event.target)) {
+            profileDropdown.classList.add("hidden");
+        }
+    });
+});
+
     </script>
 </body>
 </html>

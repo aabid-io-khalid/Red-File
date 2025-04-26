@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PELIXS - My List</title>
-    <!-- Tailwind CSS CDN -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Remix Icon CDN -->
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/10.0.0/swiper-bundle.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/10.0.0/swiper-bundle.min.js"></script>
+    <title>PELIXS - My List</title>
     <script>
         tailwind.config = {
             theme: {
@@ -16,62 +17,146 @@
                         primary: '#e50914',
                         dark: '#141414',
                         darker: '#0b0b0b'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
                     }
                 }
             }
         }
     </script>
     <style>
-        .movie-card:hover .card-overlay {
-            opacity: 1;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        .movie-card:hover .card-overlay { opacity: 1; }
+        .movie-card:hover .play-button { transform: translateY(0) scale(1); }
+        .movie-card:hover .card-image { transform: scale(1.05); filter: brightness(0.7); }
+        .rating-pill { background: rgba(255, 215, 0, 0.2); border: 1px solid rgba(255, 215, 0, 0.4); }
+        .genre-pill { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(4px); }
+        .header-container {
+            background: rgba(11, 11, 11, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
         }
-        .movie-card:hover .play-button {
-            transform: translateY(0) scale(1);
+        .nav-link {
+            position: relative;
+            padding: 0.5rem 0;
+            font-weight: 500;
+            transition: all 0.3s ease;
         }
-        .movie-card:hover .card-image {
-            transform: scale(1.05);
-            filter: brightness(0.7);
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: #e50914;
+            transition: width 0.3s ease;
         }
-        .rating-pill {
-            background: rgba(255, 215, 0, 0.2);
-            border: 1px solid rgba(255, 215, 0, 0.4);
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
         }
-        .genre-pill {
+        .nav-link.active {
+            color: #e50914;
+            font-weight: 600;
+        }
+        .logo-text {
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(229, 9, 20, 0.5);
+            background: linear-gradient(135deg, #ff0a18, #e50914);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .search-input {
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        .search-input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(229, 9, 20, 0.5);
+            box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.25);
+        }
+        .auth-button {
+            background: linear-gradient(135deg, #ff0a18, #e50914);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(229, 9, 20, 0.3);
+        }
+        .auth-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(229, 9, 20, 0.4);
+        }
+        .logout-button {
+            background: linear-gradient(135deg, #ff0a18, #e50914);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(229, 9, 20, 0.3);
+        }
+        .logout-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(229, 9, 20, 0.4);
         }
     </style>
 </head>
 <body class="bg-darker text-white font-sans">
     <!-- Header -->
-    <header class="bg-dark py-4 px-6 shadow-lg fixed top-0 w-full z-50">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-3xl font-bold text-primary tracking-wider">PELIXS</h1>
-            <nav class="hidden md:flex space-x-6">
-                <a href="/home" class="hover:text-primary transition">Home</a>
-                <a href="/browse" class="hover:text-primary transition">Browse</a>
-                <a href="/movies" class="hover:text-primary transition">Movies</a>
-                <a href="/shows" class="hover:text-primary transition">TV Shows</a>
-                <a href="/anime" class="hover:text-primary transition">Anime</a>
-                <a href="/my-list" class="text-primary font-medium">My List</a>
-            </nav>
-            <div class="flex items-center space-x-4">
-                <div class="relative flex items-center">
-                    <form id="search-form" action="/browse" method="get" class="flex items-center">
-                        <input id="search-input" type="text" name="search" placeholder="Search..." 
-                               class="bg-gray-800 text-white px-4 py-2 rounded-full text-sm focus:outline-none border border-gray-700">
-                        <button type="submit" class="text-xl p-2 rounded-full hover:bg-gray-800 transition">
-                            <i class="ri-search-line"></i>
-                        </button>
-                    </form>
+    <header class="header-container py-4 fixed top-0 w-full z-50 transition-all duration-300">
+        <div class="container mx-auto px-6">
+            <div class="flex justify-between items-center">
+                <!-- Logo -->
+                <h1 class="logo-text text-3xl">PELIXS</h1>
+                <!-- Navigation -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="/home" class="nav-link {{ request()->is('home') ? 'active' : '' }}">Home</a>
+                    <a href="/browse" class="nav-link {{ request()->is('browse') ? 'active' : '' }}">Browse</a>
+                    <a href="/movies" class="nav-link {{ request()->is('movies') ? 'active' : '' }}">Movies</a>
+                    <a href="/shows" class="nav-link {{ request()->is('shows') ? 'active' : '' }}">TV Shows</a>
+                    <a href="/anime" class="nav-link {{ request()->is('anime') ? 'active' : '' }}">Anime</a>
+                    @auth
+                        @can('access-community-chat')
+                            <a href="{{ url('/community') }}" class="nav-link {{ request()->is('community') ? 'active' : '' }}">Community</a>
+                            <a href="/mylist" class="nav-link {{ request()->is('mylist') ? 'active' : '' }}">My List</a>
+                        @endcan
+                        <a href="{{ url('/subscription') }}" class="nav-link {{ request()->is('subscription') ? 'active' : '' }}">Subscription</a>
+                    @else
+                        <a href="{{ url('/login') }}" class="nav-link">Community</a>
+                    @endauth
+                </nav>
+                <!-- Search Bar & Auth -->
+                <div class="flex items-center space-x-5">
+                    <div class="relative flex items-center">
+                        <form id="search-form" action="/browse" method="get" class="flex items-center">
+                            <div class="relative">
+                                <input id="search-input" type="text" name="search" placeholder="Search..." 
+                                       class="search-input pl-10 pr-4 py-2 rounded-full text-sm focus:outline-none w-52">
+                                <button type="submit" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition">
+                                    <i class="ri-search-line"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    @guest
+                        <a href="{{ url('/login') }}"
+                           class="auth-button text-white px-5 py-2 rounded-full flex items-center">
+                            <i class="ri-login-box-line mr-2"></i> Log In
+                        </a>
+                    @else
+                        <form action="{{ route('logout') }}" method="POST" class="inline-flex">
+                            @csrf
+                            <button type="submit"
+                                    class="logout-button text-white px-5 py-2 rounded-full flex items-center">
+                                <i class="ri-logout-box-r-line mr-2"></i> Log Out
+                            </button>
+                        </form>
+                    @endauth
                 </div>
-                <button class="text-xl p-2 rounded-full hover:bg-gray-800 transition">
-                    <i class="ri-notification-3-line"></i>
-                </button>
-                <div class="w-8 h-8 bg-primary rounded-full"></div>
             </div>
         </div>
     </header>
+
 
     <main class="pt-24 px-4 md:px-6 pb-16">
         <div class="container mx-auto">

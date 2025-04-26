@@ -2,127 +2,141 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Services\UserMetricsService;
+use App\Services\SubscriptionMetricsService;
+use App\Services\TmdbMetricsService;
+use App\Models\Comment;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
-use App\Models\User;
+use Illuminate\Support\Facades\Log;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class AdminAnalyticsController extends Controller
 {
-    protected $traktClientId;
+    protected $userMetricsService;
+    protected $subscriptionMetricsService;
+    protected $tmdbMetricsService;
 
-    public function __construct()
-    {
-        $this->traktClientId = config('services.trakt.client_id'); 
+    public function __construct(
+        UserMetricsService $userMetricsService,
+        SubscriptionMetricsService $subscriptionMetricsService,
+        TmdbMetricsService $tmdbMetricsService
+    ) {
+        $this->userMetricsService = $userMetricsService;
+        $this->subscriptionMetricsService = $subscriptionMetricsService;
+        $this->tmdbMetricsService = $tmdbMetricsService;
     }
 
     public function index()
     {
-        $totalUsers = User::count();
-        $newUsersLastMonth = User::where('created_at', '>=', now()->subMonth())->count();
+        try {
+            $userMetrics = $this->userMetricsService->getMetrics();
+            $subscriptionMetrics = $this->subscriptionMetricsService->getMetrics();
+            $tmdbMetrics = $this->tmdbMetricsService->getMetrics();
 
-        $traktMetrics = $this->fetchTraktMetrics();
+            $totalComments = Comment::count();
+            $avgCommentRating = Comment::whereNotNull('rating')->avg('rating') ?? 0;
+            $newCommentsLastMonth = Comment::where('created_at', '>=', now()->subMonth())->count();
 
-        return view('admin.analytics', array_merge([
-            'totalUsers' => $totalUsers,
-            'newUsersLastMonth' => $newUsersLastMonth,
-        ], $traktMetrics));
+            $userGrowth = $this->userMetricsService->getUserGrowth(30);
+
+            $data = array_merge(
+                $userMetrics,
+                $subscriptionMetrics,
+                $tmdbMetrics,
+                [
+                    'total_comments' => $totalComments,
+                    'avg_comment_rating' => $avgCommentRating,
+                    'new_comments_last_month' => $newCommentsLastMonth,
+                    'user_growth_labels' => $userGrowth['labels'],
+                    'user_growth_data' => $userGrowth['data'],
+                ]
+            );
+
+            Log::info('Analytics Metrics', $data);
+
+            return view('admin.index', $data);
+        } catch (\Exception $e) {
+            Log::error('Error in AdminAnalyticsController::index', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return view('admin.index', [
+                'total_users' => 0,
+                'new_users_last_month' => 0,
+                'total_subscriptions' => 0,
+                'new_subscriptions_last_month' => 0,
+                'total_subscription_revenue' => 0,
+                'revenue_growth' => 0,
+                'total_comments' => 0,
+                'avg_comment_rating' => 0,
+                'new_comments_last_month' => 0,
+                'total_movies' => 0,
+                'total_series' => 0,
+                'content_distribution' => ['movies' => 0, 'series' => 0],
+                'most_watched_movies' => [],
+                'genre_distribution' => [],
+                'user_growth_labels' => [],
+                'user_growth_data' => [],
+            ]);
+        }
     }
 
-    private function fetchTraktMetrics()
+    public function exportReport(Request $request)
     {
         try {
-            $popularMoviesResponse = Http::withHeaders([
-                'trakt-api-version' => '2',
-                'trakt-api-key' => $this->traktClientId,
-            ])->get("https://api.trakt.tv/movies/popular");
+            $userMetrics = $this->userMetricsService->getMetrics();
+            $subscriptionMetrics = $this->subscriptionMetricsService->getMetrics();
+            $tmdbMetrics = $this->tmdbMetricsService->getMetrics();
 
-            $popularMovies = $popularMoviesResponse->json() ?? [];
+            $totalComments = Comment::count();
+            $avgCommentRating = Comment::whereNotNull('rating')->avg('rating') ?? 0;
+            $newCommentsLastMonth = Comment::where('created_at', '>=', now()->subMonth())->count();
 
-            $mostViewedContent = [];
-            $totalRevenue = 0; 
-            $genreDistribution = [];
-            $genreTracker = [];
+            $days = $request->query('days', 30);
+            $userGrowth = $this->userMetricsService->getUserGrowth($days);
 
-            foreach ($popularMovies as $movie) {
-                $mostViewedContent[] = [
-                    'title' => $movie['title'],
-                    'poster_url' => $movie['images']['poster']['full'] ?? null,
-                    'views' => $movie['watchers'] ?? 0, 
-                    'revenue' => 0 
-                ];
+            $data = array_merge(
+                $userMetrics,
+                $subscriptionMetrics,
+                $tmdbMetrics,
+                [
+                    'total_comments' => $totalComments,
+                    'avg_comment_rating' => $avgCommentRating,
+                    'new_comments_last_month' => $newCommentsLastMonth,
+                    'user_growth_labels' => $userGrowth['labels'],
+                    'user_growth_data' => $userGrowth['data'],
+                    'date_range' => $days,
+                ]
+            );
 
-                foreach ($movie['genres'] as $genre) {
-                    $genreTracker[$genre] = ($genreTracker[$genre] ?? 0) + 1;
-                }
-            }
-
-            foreach ($genreTracker as $genre => $count) {
-                $genreDistribution[$genre] = $count;
-            }
-
-            $userGrowthData = $this->simulateUser Growth();
-            $userGrowthLabels = array_keys($userGrowthData);
-            $userGrowthData = array_values($userGrowthData);
-
-            return [
-                'totalMovies' => count($popularMovies),
-                'totalRevenue' => $totalRevenue,
-                'mostViewedContent' => collect($mostViewedContent)->sortByDesc('views')->take(5),
-                'maxViews' => max(collect($mostViewedContent)->pluck('views')->max(), 1),
-                'genreDistribution' => $genreDistribution,
-                'userGrowthLabels' => $userGrowthLabels,
-                'userGrowthData' => $userGrowthData,
-                
-                'avgWatchTime' => 2.5, 
-                'dailyActiveUsers' => rand(1000, 5000),
-                'subscriptionRate' => rand(30, 70), 
-                'retentionRate' => rand(40, 80), 
-            ];
+            $pdf = Pdf::loadView('admin.reports', $data);
+            return $pdf->download('analytics-report-' . now()->format('Y-m-d') . '.pdf');
         } catch (\Exception $e) {
-            \Log::error('Trakt Metrics Fetch Error: ' . $e->getMessage());
-            return [
-                'totalMovies' => 0,
-                'totalRevenue' => 0,
-                'mostViewedContent' => [],
-                'maxViews' => 1,
-                'genreDistribution' => [],
-                'userGrowthLabels' => [],
-                'userGrowthData' => [],
-                'avgWatchTime' => 0,
-                'dailyActiveUsers' => 0,
-                'subscriptionRate' => 0,
-                'retentionRate' => 0,
-            ];
+            Log::error('Error in AdminAnalyticsController::exportReport', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return redirect()->back()->with('error', 'Failed to generate report. Please try again.');
         }
-    }
-
-    private function simulateUser Growth($days = 30)
-    {
-        $userGrowth = [];
-        $baseGrowth = rand(10, 50); 
-        $endDate = now();
-        $startDate = now()->subDays($days);
-
-        for ($i = 0; $i < $days; $i++) {
-            $date = $startDate->copy()->addDays($i);
-            $dailyUsers = $baseGrowth + rand(-5, 5);
-            $userGrowth[$date->format('Y-m-d')] = max($dailyUsers, 0);
-        }
-
-        return $userGrowth;
     }
 
     public function updateAnalytics(Request $request)
     {
-        $days = $request->input('days', 30);
-        $userGrowthData = $this->simulateUser Growth($days);
-        $userGrowthLabels = array_keys($userGrowthData);
-        $userGrowthData = array_values($userGrowthData);
+        try {
+            $days = $request->input('days', 30);
+            $userGrowth = $this->userMetricsService->getUserGrowth($days);
 
-        return response()->json([
-            'userGrowthLabels' => $userGrowthLabels,
-            'userGrowthData' => $userGrowthData,
-        ]);
+            return response()->json([
+                'user_growth_labels' => $userGrowth['labels'],
+                'user_growth_data' => $userGrowth['data'],
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in AdminAnalyticsController::updateAnalytics', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return response()->json(['error' => 'Failed to update analytics'], 500);
+        }
     }
 }

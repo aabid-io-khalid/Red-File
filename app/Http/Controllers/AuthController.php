@@ -26,16 +26,22 @@ class AuthController extends Controller
             'password' => 'required|min:6',
         ]);
 
-        // Check if user is banned
         $user = User::where('email', $request->email)->first();
         if ($user && $user->is_banned) {
             Log::info('Login attempt by banned user', ['email' => $request->email]);
             return back()->withErrors(['email' => 'Your account has been banned.']);
         }
 
-        // Attempt login if not banned
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-            return redirect()->route('home');
+            $request->session()->regenerate();
+            $isAdmin = Auth::user()->hasRole('admin'); 
+            $redirectTo = $isAdmin ? 'admin.index' : 'home';
+            Log::info('User logged in', [
+                'user_id' => Auth::id(),
+                'is_admin' => $isAdmin,
+                'redirect_to' => $redirectTo,
+            ]);
+            return redirect()->intended(route($redirectTo));
         }
 
         return back()->withErrors(['email' => 'Invalid credentials.']);
@@ -61,8 +67,14 @@ class AuthController extends Controller
         ]);
 
         Auth::login($user);
-
-        return redirect()->route('home');
+        $isAdmin = $user->hasRole('admin');
+        $redirectTo = $isAdmin ? 'admin.index' : 'home';
+        Log::info('User registered', [
+            'user_id' => $user->id,
+            'is_admin' => $isAdmin,
+            'redirect_to' => $redirectTo,
+        ]);
+        return redirect()->intended(route($redirectTo));
     }
 
     public function logout()
@@ -125,9 +137,6 @@ class AuthController extends Controller
         return Socialite::driver('google')->redirect();
     }
 
-    /**
-     * Handle Google OAuth callback
-     */
     public function handleGoogleCallback()
     {
         try {
@@ -144,13 +153,19 @@ class AuthController extends Controller
                 [
                     'name' => $googleUser->name,
                     'google_id' => $googleUser->id,
-                    'password' => Hash::make(Str::random(16)), // Random password for social login
+                    'password' => Hash::make(Str::random(16)),
                 ]
             );
 
             Auth::login($user, true);
-
-            return redirect()->route('home');
+            $isAdmin = $user->hasRole('admin'); 
+            $redirectTo = $isAdmin ? 'admin.index' : 'home';
+            Log::info('Google login', [
+                'user_id' => $user->id,
+                'is_admin' => $isAdmin,
+                'redirect_to' => $redirectTo,
+            ]);
+            return redirect()->intended(route($redirectTo));
         } catch (\Exception $e) {
             Log::error('Google login failed', ['error' => $e->getMessage()]);
             return redirect()->route('login')->withErrors(['email' => 'Google login failed. Please try again.']);

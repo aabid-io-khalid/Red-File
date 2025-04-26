@@ -53,7 +53,6 @@
             background-color: #0b0b0b;
         }
         
-        /* Cinematic background effect */
         .cinematic-bg {
             position: relative;
             overflow: hidden;
@@ -72,7 +71,6 @@
             z-index: 1;
         }
         
-        /* Particle effect */
         .particles {
             position: absolute;
             top: 0;
@@ -91,7 +89,6 @@
             z-index: 0;
         }
         
-        /* Neon glow effects */
         .neon-glow {
             box-shadow: 0 0 15px rgba(229, 9, 20, 0.7), 
                         0 0 30px rgba(229, 9, 20, 0.4), 
@@ -104,7 +101,6 @@
                          0 0 10px rgba(229, 9, 20, 0.4);
         }
         
-        /* Glass morphism */
         .glass-card {
             background: rgba(20, 20, 20, 0.6);
             backdrop-filter: blur(16px);
@@ -125,7 +121,6 @@
             border-color: rgba(229, 9, 20, 0.5);
         }
         
-        /* Button effects */
         .btn-glow {
             position: relative;
             overflow: hidden;
@@ -147,7 +142,6 @@
             left: 100%;
         }
         
-        /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -161,7 +155,6 @@
             border-radius: 4px;
         }
         
-        /* 3D perspective card effect */
         .card-3d-container {
             perspective: 1000px;
         }
@@ -200,7 +193,6 @@
             100% { width: 100%; }
         }
         
-        /* Background image hover zoom effect */
         .zoom-bg {
             transition: transform 10s ease;
         }
@@ -221,9 +213,7 @@
     </div>
     
     <script>
-        // Initialize particle effect
         document.addEventListener("DOMContentLoaded", function() {
-            // Create particles
             const particlesContainer = document.querySelectorAll('.particles');
             particlesContainer.forEach(container => {
                 for (let i = 0; i < 50; i++) {
@@ -237,7 +227,6 @@
                     particle.style.opacity = Math.random() * 0.5 + 0.1;
                     container.appendChild(particle);
                     
-                    // Animate particles
                     gsap.to(particle, {
                         x: Math.random() * 100 - 50,
                         y: Math.random() * 100 - 50,
@@ -249,7 +238,6 @@
                 }
             });
             
-            // Password toggle
             const togglePassword = document.getElementById('togglePassword');
             if (togglePassword) {
                 const passwordInput = document.getElementById('password');
@@ -270,7 +258,6 @@
                 });
             }
             
-            // Password strength indicator
             const passwordStrength = document.getElementById('password');
             const strengthBar = document.getElementById('passwordStrength');
             const strengthText = document.getElementById('passwordStrengthText');
@@ -304,7 +291,6 @@
                 });
             }
             
-            // Card animations
             gsap.from(".card-3d", {
                 y: 30,
                 opacity: 0,
@@ -313,7 +299,6 @@
                 ease: "power3.out"
             });
             
-            // Text animations
             gsap.from("h1, h2", {
                 y: -20,
                 opacity: 0,
@@ -322,7 +307,6 @@
                 ease: "back.out(1.7)"
             });
             
-            // Form animations
             gsap.from("form .glass-input", {
                 x: -20,
                 opacity: 0,

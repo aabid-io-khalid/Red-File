@@ -2,61 +2,39 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Remix Icon CDN -->
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-    
-    <!-- Swiper.js for carousel -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/10.0.0/swiper-bundle.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/10.0.0/swiper-bundle.min.js"></script>
-    
     <title>PELIXS - Home</title>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#e50914', 
+                        primary: '#e50914',
                         dark: '#141414',
                         darker: '#0b0b0b'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
                     }
                 }
             }
         }
     </script>
     <style>
-        .movie-card:hover .card-overlay {
-            opacity: 1;
-        }
-        .movie-card:hover .play-button {
-            transform: translateY(0) scale(1);
-        }
-        .movie-card:hover .card-image {
-            transform: scale(1.05);
-            filter: brightness(0.7);
-        }
-        .rating-pill {
-            background: rgba(255, 215, 0, 0.2);
-            border: 1px solid rgba(255, 215, 0, 0.4);
-        }
-        .genre-pill {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(4px);
-        }
-        .hero-gradient {
-            background: linear-gradient(to top, rgba(11, 11, 11, 1) 0%, rgba(11, 11, 11, 0) 100%);
-        }
-        .swiper-container {
-            overflow: hidden;
-            position: relative;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        .movie-card:hover .card-overlay { opacity: 1; }
+        .movie-card:hover .play-button { transform: translateY(0) scale(1); }
+        .movie-card:hover .card-image { transform: scale(1.05); filter: brightness(0.7); }
+        .rating-pill { background: rgba(255, 215, 0, 0.2); border: 1px solid rgba(255, 215, 0, 0.4); }
+        .genre-pill { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(4px); }
+        .hero-gradient { background: linear-gradient(to top, rgba(11, 11, 11, 1) 0%, rgba(11, 11, 11, 0) 100%); }
+        .swiper-container { overflow: hidden; position: relative; }
         .swiper-button-next, .swiper-button-prev {
             color: white !important;
             background: rgba(0, 0, 0, 0.6);
@@ -65,119 +43,157 @@
             border-radius: 50%;
             transition: all 0.3s ease;
         }
-        .swiper-button-next:hover, .swiper-button-prev:hover {
-            background: rgba(229, 9, 20, 0.8);
+        .swiper-button-next:hover, .swiper-button-prev:hover { background: rgba(229, 9, 20, 0.8); }
+        .swiper-button-next:after, .swiper-button-prev:after { font-size: 18px !important; }
+        .swiper-pagination-bullet { background: white; opacity: 0.6; }
+        .swiper-pagination-bullet-active { background: #e50914; opacity: 1; }
+        .search-expand { width: 0; transition: width 0.3s ease; }
+        .search-expanded { width: 200px; }
+        .swiper-wrapper::-webkit-scrollbar { display: none; }
+        .swiper-wrapper { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Header Enhancements */
+        .header-container {
+            background: rgba(11, 11, 11, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
         }
-        .swiper-button-next:after, .swiper-button-prev:after {
-            font-size: 18px !important;
+        
+        .nav-link {
+            position: relative;
+            padding: 0.5rem 0;
+            font-weight: 500;
+            transition: all 0.3s ease;
         }
-        .swiper-pagination-bullet {
-            background: white;
-            opacity: 0.6;
-        }
-        .swiper-pagination-bullet-active {
-            background: #e50914;
-            opacity: 1;
-        }
-        .search-expand {
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
             width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: #e50914;
             transition: width 0.3s ease;
         }
-        .search-expanded {
-            width: 200px;
+        
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
         }
-        /* Hide scrollbar for Chrome, Safari and Opera */
-        .swiper-wrapper::-webkit-scrollbar {
-            display: none;
+        
+        .nav-link.active {
+            color: #e50914;
+            font-weight: 600;
         }
-        /* Hide scrollbar for IE, Edge and Firefox */
-        .swiper-wrapper {
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
+        
+        .logo-text {
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(229, 9, 20, 0.5);
+            background: linear-gradient(135deg, #ff0a18, #e50914);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .search-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(229, 9, 20, 0.5);
+            box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.25);
+        }
+        
+        .auth-button {
+            background: linear-gradient(135deg, #ff0a18, #e50914);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(229, 9, 20, 0.3);
+        }
+        
+        .auth-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(229, 9, 20, 0.4);
+        }
+        
+        .logout-button {
+            background: linear-gradient(135deg, #ff0a18, #e50914);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(229, 9, 20, 0.3);
+        }
+        
+        .logout-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(229, 9, 20, 0.4);
         }
     </style>
 </head>
 <body class="bg-darker text-white font-sans">
-<!-- Header -->
-<header class="bg-dark py-4 px-6 shadow-lg fixed top-0 w-full z-50">
-    <div class="container mx-auto flex justify-between items-center">
-        <!-- Logo -->
-        <h1 class="text-3xl font-bold text-primary tracking-wider">PELIXS</h1>
-
-        <!-- Navigation -->
-        <nav class="hidden md:flex space-x-6">
-            <a href="/home" class="text-primary font-medium">Home</a>
-            <a href="/browse" class="hover:text-primary transition">Browse</a>
-            <a href="/movies" class="hover:text-primary transition">Movies</a>
-            <a href="/shows" class="hover:text-primary transition">TV Shows</a>
-            <a href="/anime" class="hover:text-primary transition">Anime</a>
-            <a href="/mylist" class="hover:text-primary transition">My List</a>
-                @auth
-                    @can('access-community-chat')
-                        <a href="{{ url('/community') }}" class="hover:text-primary transition">Community</a>
-                    @endcan
-            
-                    <a href="{{ url('/subscription') }}" class="hover:text-primary transition">Subscription</a>
-                @else
-                    <a href="{{ url('/login') }}" class="hover:text-primary transition">Community</a>
-                @endauth
-            </nav>
-            
-
-        <!-- Search Bar -->
-        <div class="relative flex items-center">
-            <form id="search-form" action="/browse" method="get" class="flex items-center">
-                @if(request()->has('type'))
-                    <input type="hidden" name="type" value="{{ request()->query('type') }}">
-                @endif
-                <input id="search-input" type="text" name="search" placeholder="Search..." 
-                       value="{{ request()->query('search') }}"
-                       class="bg-gray-800 text-white px-4 py-2 rounded-full text-sm focus:outline-none border border-gray-700">
-                <button type="submit" class="text-xl p-2 rounded-full hover:bg-gray-800 transition">
-                    <i class="ri-search-line"></i>
-                </button>
-            </form>
-        </div>
-
-        <!-- Profile & Notifications -->
-        <div class="flex items-center space-x-4">
-            <button class="text-xl p-2 rounded-full hover:bg-gray-800 transition">
-                <i class="ri-notification-3-line"></i>
-            </button>
-
-            <!-- Profile Dropdown -->
-            <div class="relative">
-                <button id="profile-toggle" class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                    <i class="ri-user-line text-white"></i>
-                </button>
-                <div id="profile-dropdown" class="profile-dropdown absolute right-0 top-full mt-2 w-48 bg-dark border border-gray-700 rounded-lg shadow-lg hidden">
-                    <ul class="py-1">
-                        <li>
-                            <a href="/profile" class="block px-4 py-2 hover:bg-gray-800 transition flex items-center">
-                                <i class="ri-user-line mr-2"></i> Profile
-                            </a>
-                        </li>
-                        <li>
-                            <a href="/settings" class="block px-4 py-2 hover:bg-gray-800 transition flex items-center">
-                                <i class="ri-settings-3-line mr-2"></i> Settings
-                            </a>
-                        </li>
-                        <li>
-                            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
-                                @csrf
-                            </form>
-                            <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" 
-                               class="block px-4 py-2 hover:bg-gray-800 transition text-red-500 hover:text-red-400 flex items-center">
-                                <i class="ri-logout-box-r-line mr-2"></i> Logout
-                            </a>
-                        </li>
-                    </ul>
+    <!-- Enhanced Header -->
+    <header class="header-container py-4 fixed top-0 w-full z-50 transition-all duration-300">
+        <div class="container mx-auto px-6">
+            <div class="flex justify-between items-center">
+                <!-- Logo with enhanced styling -->
+                <h1 class="logo-text text-3xl">PELIXS</h1>
+                
+                <!-- Navigation with animated hover effects -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="/home" class="nav-link {{ request()->is('home') ? 'active' : '' }}">Home</a>
+                    <a href="/browse" class="nav-link {{ request()->is('browse') ? 'active' : '' }}">Browse</a>
+                    <a href="/movies" class="nav-link {{ request()->is('movies') ? 'active' : '' }}">Movies</a>
+                    <a href="/shows" class="nav-link {{ request()->is('shows') ? 'active' : '' }}">TV Shows</a>
+                    <a href="/anime" class="nav-link {{ request()->is('anime') ? 'active' : '' }}">Anime</a>
+                    @auth
+                        @can('access-community-chat')
+                            <a href="/community" class="nav-link {{ request()->is('community') ? 'active' : '' }}">Community</a>
+                            <a href="/mylist" class="nav-link {{ request()->is('mylist') ? 'active' : '' }}">My List</a>
+                        @endcan
+                        <a href="{{ url('/subscription') }}" class="nav-link {{ request()->is('subscription') ? 'active' : '' }}">Subscription</a>
+                    @else
+                        <a href="{{ url('/login') }}" class="nav-link">Community</a>
+                    @endauth
+                </nav>
+                
+                <!-- Search Bar & Auth with improved styling -->
+                <div class="flex items-center space-x-5">
+                    <div class="relative flex items-center">
+                        <form id="search-form" action="/browse" method="get" class="flex items-center">
+                            @if(request()->has('type'))
+                                <input type="hidden" name="type" value="{{ request()->query('type') }}">
+                            @endif
+                            <div class="relative">
+                                <input id="search-input" type="text" name="search" placeholder="Search..." 
+                                       value="{{ request()->query('search') }}"
+                                       class="search-input pl-10 pr-4 py-2 rounded-full text-sm focus:outline-none w-52">
+                                <button type="submit" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition">
+                                    <i class="ri-search-line"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    @guest
+                        <a href="{{ url('/login') }}"
+                           class="auth-button text-white px-5 py-2 rounded-full flex items-center">
+                            <i class="ri-login-box-line mr-2"></i> Log In
+                        </a>
+                    @else
+                        <form action="{{ route('logout') }}" method="POST" class="inline-flex">
+                            @csrf
+                            <button type="submit"
+                                    class="logout-button text-white px-5 py-2 rounded-full flex items-center">
+                                <i class="ri-logout-box-r-line mr-2"></i> Log Out
+                            </button>
+                        </form>
+                    @endauth
                 </div>
             </div>
         </div>
-    </div>
-</header>
-
+    </header>
 
 
     <main class="pt-16">
@@ -218,7 +234,6 @@
             
             <div class="swiper-container new-releases-swiper">
                 <div class="swiper-wrapper" id="new-releases-wrapper">
-                    <!-- New releases will be dynamically inserted here -->
                 </div>
                 <div class="swiper-button-prev"></div>
                 <div class="swiper-button-next"></div>
@@ -710,6 +725,25 @@
     document.getElementById('profile-toggle').addEventListener('click', function () {
         document.getElementById('profile-dropdown').classList.toggle('hidden');
     });
+
+    // <!-- Add this script for scrolling effects -->
+        document.addEventListener('DOMContentLoaded', function () {
+            const header = document.querySelector('header');
+            
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 50) {
+                    header.classList.add('py-3');
+                    header.classList.remove('py-4');
+                    header.style.background = 'rgba(11, 11, 11, 0.98)';
+                    header.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.5)';
+                } else {
+                    header.classList.add('py-4');
+                    header.classList.remove('py-3');
+                    header.style.background = 'rgba(11, 11, 11, 0.95)';
+                    header.style.boxShadow = '0 4px 30px rgba(0, 0, 0, 0.3)';
+                }
+            });
+        });
     </script>
 </body>
 </html>

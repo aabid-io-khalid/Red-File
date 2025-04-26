@@ -290,7 +290,6 @@
 @section('scripts')
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // Enhanced Particle Effect
         const particleContainers = ['particles-left', 'particles-right'];
         
         particleContainers.forEach(containerId => {
@@ -307,7 +306,6 @@
                     particle.style.opacity = Math.random() * 0.5 + 0.1;
                     container.appendChild(particle);
                     
-                    // Animate particles with GSAP
                     gsap.to(particle, {
                         x: Math.random() * 150 - 75,
                         y: Math.random() * 150 - 75,
@@ -320,7 +318,6 @@
             }
         });
         
-        // Animate tagline
         gsap.to("#tagline", {
             opacity: 1,
             y: 0,
@@ -328,7 +325,6 @@
             delay: 0.6
         });
         
-        // Animate form inputs with stagger
         gsap.from("#reset-form .form-group", {
             y: 30,
             opacity: 0,
@@ -338,7 +334,6 @@
             delay: 0.3
         });
         
-        // Mouse follow effect for spotlight
         const formContainer = document.querySelector('.md\\:w-1/2.w-full');
         if (formContainer) {
             const spotlight = formContainer.querySelector('.spotlight');
@@ -357,7 +352,6 @@
             });
         }
         
-        // Interactive button effect
         const submitButton = document.querySelector('button[type="submit"]');
         if (submitButton) {
             submitButton.addEventListener('mouseenter', () => {
@@ -379,14 +373,11 @@
                     return;
                 }
                 
-                // Prevent default to show animation before form submit
                 e.preventDefault();
                 
-                // Add loading state
                 this.innerHTML = '<i class="ri-loader-4-line animate-spin mr-2"></i> Sending...';
                 this.disabled = true;
                 
-                // Create ripple effect
                 const ripple = document.createElement('div');
                 ripple.style.position = 'absolute';
                 ripple.style.borderRadius = '50%';
@@ -411,14 +402,12 @@
                     duration: 0.8,
                     onComplete: () => {
                         ripple.remove();
-                        // Submit the form after animation completes
                         document.getElementById('reset-form').submit();
                     }
                 });
             });
         }
         
-        // Floating animation for process cards
         gsap.to(".reset-process-item", {
             y: -10,
             duration: 2,

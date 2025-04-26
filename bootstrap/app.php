@@ -12,7 +12,6 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Register 'role' alias for RoleMiddleware
         $middleware->alias([
             'role' => RoleMiddleware::class,
         ]);

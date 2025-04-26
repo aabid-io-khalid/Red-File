@@ -14,8 +14,6 @@ return new class extends Migration {
             $table->boolean('is_tmdb')->default(false);
             $table->string('reason')->nullable();
             $table->timestamps();
-
-            // Foreign key constraint
             $table->foreign('movie_id')->references('id')->on('movies')->onDelete('cascade');
         });
     }

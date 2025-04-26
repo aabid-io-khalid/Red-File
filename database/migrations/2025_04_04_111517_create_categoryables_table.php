@@ -10,7 +10,7 @@ return new class extends Migration {
         Schema::create('categoryables', function (Blueprint $table) {
             $table->id();
             $table->foreignId('category_id')->constrained()->onDelete('cascade');
-            $table->morphs('categoryable'); // this creates categoryable_id and categoryable_type
+            $table->morphs('categoryable'); 
             $table->timestamps();
         });
     }

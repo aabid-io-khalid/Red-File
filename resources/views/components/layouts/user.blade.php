@@ -180,7 +180,6 @@
     </footer>
 
     <script>
-        // Search functionality
         document.addEventListener('DOMContentLoaded', function() {
             const searchToggle = document.getElementById('search-toggle');
             const searchInput = document.getElementById('search-input');

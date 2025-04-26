@@ -12,8 +12,7 @@ return new class extends Migration {
             $table->unsignedBigInteger('tmdb_id'); // Store TMDB Movie ID
             
             // $table->foreignId('movie_id')->constrained()->onDelete('cascade');
-            $table->timestamps();
-            
+            $table->timestamps();      
             $table->unique(['user_id', 'tmdb_id']);
         });
     }

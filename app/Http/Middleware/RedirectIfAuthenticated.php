@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Log;
 
 class RedirectIfAuthenticated
 {
@@ -15,7 +15,15 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
-                return redirect()->route('home');
+                $isAdmin = Auth::user()->hasRole('admin'); 
+                $redirectTo = $isAdmin ? 'admin.index' : 'home';
+                Log::info('RedirectIfAuthenticated triggered', [
+                    'user_id' => Auth::id(),
+                    'is_admin' => $isAdmin,
+                    'redirect_to' => $redirectTo,
+                    'requested_url' => $request->fullUrl(),
+                ]);
+                return redirect()->route($redirectTo);
             }
         }
 

@@ -13,6 +13,22 @@
         </button>
     </div>
 
+    <!-- Search Bar -->
+    <div class="mb-6">
+        <div class="relative">
+            <input 
+                type="text" 
+                id="movie-search" 
+                placeholder="Search movies by title..." 
+                class="bg-gray-800 text-white w-full px-4 py-2 rounded-lg border border-gray-700 focus:outline-none focus:border-primary pl-10"
+            >
+            <i class="ri-search-line absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+        </div>
+        <div id="search-no-results" class="hidden text-center text-gray-400 mt-4">
+            No movies found matching your search.
+        </div>
+    </div>
+
     @if(session('success'))
         <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
             {{ session('success') }}
@@ -62,7 +78,7 @@
         @elseif(isset($localMovies) && count($localMovies) > 0)
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 @foreach($localMovies as $movie)
-                <div class="bg-dark rounded-lg overflow-hidden border border-gray-800 movie-card relative">
+                <div class="bg-dark rounded-lg overflow-hidden border border-gray-800 movie-card relative" data-title="{{ strtolower($movie->title) }}">
                     <div class="relative">
                         <img 
                             src="{{ $movie->poster ?? '/img/no-poster.jpg' }}" 
@@ -138,7 +154,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             @if(isset($apiMovies) && !empty($apiMovies))
                 @foreach($apiMovies as $movie)
-                <div class="bg-dark rounded-lg overflow-hidden border border-gray-800 movie-card relative">
+                <div class="bg-dark rounded-lg overflow-hidden border border-gray-800 movie-card relative" data-title="{{ strtolower($movie['title'] ?? 'unknown title') }}">
                     <div class="relative">
                         <img 
                             src="{{ isset($movie['poster_path']) && $movie['poster_path'] ? 'https://image.tmdb.org/t/p/w500' . $movie['poster_path'] : '/img/no-poster.jpg' }}" 
@@ -263,7 +279,7 @@
                     <textarea name="description" id="description" rows="4" class="bg-gray-800 text-white w-full px-4 py-2 rounded border border-gray-700 focus:outline-none focus:border-primary"></textarea>
                 </div>
                 
-                <div class="col-span-1">
+                <div class=" xemcol-span-1">
                     <label for="rating" class="block text-sm font-medium text-gray-300 mb-1">Rating (0-10)</label>
                     <input type="number" name="rating" id="rating" min="0" max="10" step="0.1" class="bg-gray-800 text-white w-full px-4 py-2 rounded border border-gray-700 focus:outline-none focus:border-primary">
                 </div>
@@ -303,6 +319,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         const tab = urlParams.get('tab');
         if (tab === 'api') switchTab('api');
+        initSearch();
     });
 
     function switchTab(tab) {
@@ -317,6 +334,30 @@
         const url = new URL(window.location.href);
         url.searchParams.set('tab', tab);
         window.history.replaceState({}, '', url);
+        filterMovies(); 
+    }
+
+    function initSearch() {
+        const searchInput = document.getElementById('movie-search');
+        searchInput.addEventListener('input', filterMovies);
+    }
+
+    function filterMovies() {
+        const searchInput = document.getElementById('movie-search');
+        const query = searchInput.value.trim().toLowerCase();
+        const activeTab = document.getElementById('local-content').classList.contains('hidden') ? 'api' : 'local';
+        const movieCards = document.querySelectorAll(`#${activeTab}-content .movie-card`);
+        const noResults = document.getElementById('search-no-results');
+        let hasVisibleMovies = false;
+
+        movieCards.forEach(card => {
+            const title = card.getAttribute('data-title');
+            const matches = !query || title.includes(query);
+            card.classList.toggle('hidden', !matches);
+            if (matches) hasVisibleMovies = true;
+        });
+
+        noResults.classList.toggle('hidden', hasVisibleMovies || !query);
     }
 
     function openMovieModal(mode, id = null) {
@@ -328,7 +369,6 @@
         const noPreview = document.getElementById('no-preview');
         const methodInput = document.getElementById('form-method');
 
-        // Reset form and modal
         form.reset();
         posterPreview.classList.add('hidden');
         noPreview.classList.remove('hidden');
@@ -373,52 +413,51 @@
 
         modal.classList.remove('hidden');
         modal.classList.add('flex');
-        document.body.style.overflow = 'hidden'; // Lock scroll
+        document.body.style.overflow = 'hidden'; 
     }
 
     function closeMovieModal() {
         document.getElementById('movie-modal').classList.add('hidden');
         document.getElementById('movie-modal').classList.remove('flex');
-        document.body.style.overflow = ''; // Unlock scroll
+        document.body.style.overflow = ''; 
     }
 
     document.getElementById('movie-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const form = this;
-    const formData = new FormData(form);
-    
-    // Add proper Content-Type header
-    const headers = new Headers();
-    headers.append('X-CSRF-TOKEN', document.querySelector('meta[name="csrf-token"]').content);
-    
-    fetch(form.action, {
-        method: 'POST',
-        headers: headers,
-        body: formData,
-        redirect: 'manual' // Prevent redirects
-    })
-    .then(response => {
-        if (!response.ok) {
-            return response.text().then(text => {
-                throw new Error(`HTTP error! status: ${response.status} - ${text}`);
-            });
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.success) {
-            showMessage('success', data.message);
-            closeMovieModal();
-            setTimeout(() => window.location.reload(), 1000);
-        } else {
-            showMessage('error', data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showMessage('error', `Error: ${error.message}`);
+        e.preventDefault();
+        const form = this;
+        const formData = new FormData(form);
+        
+        const headers = new Headers();
+        headers.append('X-CSRF-TOKEN', document.querySelector('meta[name="csrf-token"]').content);
+        
+        fetch(form.action, {
+            method: 'POST',
+            headers: headers,
+            body: formData,
+            redirect: 'manual' 
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => {
+                    throw new Error(`HTTP error! status: ${response.status} - ${text}`);
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                showMessage('success', data.message);
+                closeMovieModal();
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                showMessage('error', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showMessage('error', `Error: ${error.message}`);
+        });
     });
-});
 
     function toggleBan(id, isTmdb) {
         const button = document.querySelector(`button[data-id="${id}"][data-is-tmdb="${isTmdb}"]`);

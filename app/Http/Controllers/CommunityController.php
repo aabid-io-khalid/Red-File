@@ -18,15 +18,13 @@ class CommunityController extends Controller
         
         $user = Auth::user();
 
-        // Generate a simple token (Base64 for now; Sanctum/JWT recommended later)
         $token = base64_encode(json_encode([
             'id' => $user->id,
-            'name' => $user->name, // Adjust to fullName if that's your column
+            'name' => $user->name, 
             'email' => $user->email,
-            'timestamp' => now()->timestamp, // For expiration
+            'timestamp' => now()->timestamp, 
         ]));
 
-        // Redirect to React chat app
         $chatUrl = "http://localhost:5173/chat?token=" . urlencode($token);
         return redirect($chatUrl);
     }

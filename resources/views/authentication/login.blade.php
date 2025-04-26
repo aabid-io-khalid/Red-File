@@ -43,7 +43,6 @@
             line-height: 1.5;
         }
 
-        /* Movie Covers Background with improved animation */
         .movie-covers-bg {
             position: fixed;
             top: 0;
@@ -797,7 +796,6 @@
     </style>
 </head>
 <body>
-    <!-- Movie Covers Background -->
     <div class="movie-covers-bg">
         <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg');"></div> <!-- The Shawshank Redemption -->
         <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg');"></div> <!-- The Dark Knight -->
@@ -852,96 +850,142 @@
       </div>
       
 
-    <!-- Main Container -->
-    <div class="main-container">
-        <!-- Auth Card -->
-        <div class="auth-card">
-            <div class="glass-effect"></div>
-            <div class="corner-decoration corner-top-left"></div>
-            <div class="corner-decoration corner-top-right"></div>
-            <div class="corner-decoration corner-bottom-left"></div>
-            <div class="corner-decoration corner-bottom-right"></div>
-            
-            <!-- Logo & Header -->
-            <div class="brand-header">
-                <div class="logo-glow"></div>
-                <h1 class="brand-logo">PELIXS</h1>
-                <p class="brand-tagline">Premium Cinema Experience</p>
-            </div>
-            
-            <h2 class="form-title">
-                Welcome <span class="gradient-text" data-text="Back">Back</span>
-            </h2>
-            
-            <!-- Login Form -->
-            <form>
-                <div class="form-group">
-                    <label class="form-label" for="email-input">Email Address</label>
-                    <div class="input-container">
-                        <input type="email" id="email-input" class="input-field" placeholder="Enter your email" required>
-                        <i class="input-icon ri-mail-line"></i>
-                        <i class="validation-icon ri-checkbox-circle-fill"></i>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <div class="form-row">
-                        <label class="form-label" for="password-input">Password</label>
-                        <a href="#" class="forgot-password">Forgot Password?</a>
-                    </div>
-                    <div class="input-container">
-                        <input type="password" id="password-input" class="input-field" placeholder="Enter your password" required>
-                        <i class="input-icon ri-lock-line"></i>
-                        <button type="button" class="password-toggle">
-                            <i class="ri-eye-off-line"></i>
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="remember-me">
-                    <input type="checkbox" id="remember" class="custom-checkbox">
-                    <label for="remember" class="remember-label">Remember me for 30 days</label>
-                </div>
-                
-                <button type="submit" class="primary-button">
-                    <i class="btn-icon ri-login-circle-line"></i>
-                    Sign In
-                </button>
-            </form>
-            
-            <div class="divider">
-                <span>or continue with</span>
-            </div>
-            
-            <!-- Social Login Options -->
-            <div class="social-options">
-                <a href="#" class="social-button">
-                    <i class="social-icon ri-google-fill"></i>
-                    Google
-                </a>
-                <a href="#" class="social-button">
-                    <i class="social-icon ri-facebook-fill"></i>
-                    Facebook
-                </a>
-            </div>
-            
-            <!-- Signup Prompt -->
-            <div class="signup-prompt">
-                Don't have an account?
-                <a href="#" class="signup-link">
-                    Sign up
-                    <i class="signup-icon ri-arrow-right-line"></i>
-                </a>
-            </div>
+<!-- Main Container -->
+<div class="main-container">
+    <!-- Spotlight Effect -->
+    <div class="spotlight"></div>
+
+    <!-- Auth Card -->
+    <div class="auth-card form-appear">
+        <div class="glass-effect"></div>
+        <div class="corner-decoration corner-top-left"></div>
+        <div class="corner-decoration corner-top-right"></div>
+        <div class="corner-decoration corner-bottom-left"></div>
+        <div class="corner-decoration corner-bottom-right"></div>
+        
+        <!-- Logo & Header -->
+        <div class="brand-header">
+            <div class="logo-glow"></div>
+            <h1 class="brand-logo">PELIXS</h1>
+            <p class="brand-tagline">Premium Cinema Experience</p>
         </div>
         
-        <!-- Footer -->
-        <div class="footer">
-            &copy; 2025 PELIXS. All rights reserved.
+        <h2 class="form-title">
+            Welcome <span class="gradient-text" data-text="Back">Back</span>
+        </h2>
+        
+        <!-- Status Messages -->
+        @if (session('message'))
+            <div class="bg-green-900\/30 border border-green-800 text-green-400 px-4 py-3 rounded-lg mb-6 animate-pulse-slow">
+                {{ session('message') }}
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div class="bg-red-900\/30 border border-red-800 text-red-400 px-4 py-3 rounded-lg mb-6 animate-pulse-slow">
+                @foreach ($errors->all() as $error)
+                    <p>{{ $error }}</p>
+                @endforeach
+            </div>
+        @endif
+        
+        <!-- Login Form -->
+        <form id="login-form" method="POST" action="{{ route('login') }}">
+            @csrf
+            <div class="form-group">
+                <label class="form-label" for="email-input">Email Address</label>
+                <div class="input-container shimmer">
+                    <input 
+                        type="email" 
+                        id="email-input" 
+                        name="email" 
+                        class="input-field" 
+                        placeholder="Enter your email" 
+                        value="{{ old('email') }}"
+                        required
+                        autofocus
+                    >
+                    <i class="input-icon ri-mail-line"></i>
+                    <i class="validation-icon ri-checkbox-circle-fill" id="emailValidation"></i>
+                </div>
+                @error('email')
+                    <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+            
+            <div class="form-group">
+                <div class="form-row">
+                    <label class="form-label" for="password-input">Password</label>
+                    <a href="{{ route('password.request') }}" class="forgot-password">Forgot Password?</a>
+                </div>
+                <div class="input-container shimmer">
+                    <input 
+                        type="password" 
+                        id="password-input" 
+                        name="password" 
+                        class="input-field" 
+                        placeholder="Enter your password" 
+                        required
+                    >
+                    <i class="input-icon ri-lock-line"></i>
+                    <button type="button" class="password-toggle">
+                        <i class="ri-eye-off-line"></i>
+                    </button>
+                </div>
+                @error('password')
+                    <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+            
+            <div class="remember-me">
+                <input 
+                    type="checkbox" 
+                    id="remember" 
+                    name="remember" 
+                    class="custom-checkbox"
+                    {{ old('remember') ? 'checked' : '' }}
+                >
+                <label for="remember" class="remember-label">Remember me for 30 days</label>
+            </div>
+            
+            <button type="submit" class="primary-button pulse-btn">
+                <i class="btn-icon ri-login-circle-line"></i>
+                Sign In
+            </button>
+        </form>
+        
+        <div class="divider">
+            <span>or continue with</span>
+        </div>
+        
+        <!-- Social Login Options -->
+        <div class="social-options">
+            <a href="{{ route('auth.google') }}" class="social-button">
+                <i class="social-icon ri-google-fill"></i>
+                Google
+            </a>
+            {{-- <a href="#" class="social-button" onclick="alert('Facebook login not implemented yet.');">
+                <i class="social-icon ri-facebook-fill"></i>
+                Facebook
+            </a> --}}
+        </div>
+        
+        <!-- Signup Prompt -->
+        <div class="signup-prompt">
+            Don't have an account?
+            <a href="{{ route('register') }}" class="signup-link">
+                Sign up
+                <i class="signup-icon ri-arrow-right-line"></i>
+            </a>
         </div>
     </div>
+    
+    <!-- Footer -->
+    <div class="text-center mt-8 text-sm text-gray-500">
+        © 2025 PELIXS Cinema. All rights reserved.
+    </div>
+</div>
 
-    <!-- JavaScript for Password Toggle -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const passwordInput = document.getElementById('password-input');
@@ -960,7 +1004,6 @@
                 }
             });
             
-            // Optional: Add dynamic particles
             function createParticles() {
                 const particles = document.querySelector('.particles');
                 for (let i = 0; i < 10; i++) {
@@ -977,7 +1020,6 @@
             
             createParticles();
             
-            // Email validation visual feedback
             const emailInput = document.getElementById('email-input');
             const emailValidationIcon = emailInput.nextElementSibling.nextElementSibling;
             

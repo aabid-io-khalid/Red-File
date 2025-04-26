@@ -17,10 +17,10 @@ return new class extends Migration
         $table->text('description')->nullable();
         $table->integer('year')->nullable();
         $table->float('rating')->nullable();
-        $table->string('poster')->nullable(); // Cloudinary URL
+        $table->string('poster')->nullable();
         $table->boolean('is_banned')->default(false);
-        $table->unsignedInteger('seasons')->default(1); // New field
-        $table->unsignedInteger('episodes_per_season')->default(1); // New field
+        $table->unsignedInteger('seasons')->default(1); 
+        $table->unsignedInteger('episodes_per_season')->default(1); 
         $table->timestamps();
     });
     

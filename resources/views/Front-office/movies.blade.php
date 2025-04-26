@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/10.0.0/swiper-bundle.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/10.0.0/swiper-bundle.min.js"></script>
     <title>PELIXS - Movies</title>
     <script>
         tailwind.config = {
@@ -14,12 +17,17 @@
                         primary: '#e50914',
                         dark: '#141414',
                         darker: '#0b0b0b'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
                     }
                 }
             }
         }
     </script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
         .movie-card:hover .card-overlay { opacity: 1; }
         .movie-card:hover .play-button { transform: translateY(0) scale(1); }
         .movie-card:hover .card-image { transform: scale(1.05); filter: brightness(0.7); }
@@ -35,55 +43,135 @@
         .year-slider::-moz-range-thumb {
             width: 18px; height: 18px; border-radius: 50%; background: #e50914; cursor: pointer;
         }
-        .profile-dropdown { display: none; }
-        .profile-dropdown.show { display: block; }
+        .header-container {
+            background: rgba(11, 11, 11, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+        .nav-link {
+            position: relative;
+            padding: 0.5rem 0;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: #e50914;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+        .nav-link.active {
+            color: #e50914;
+            font-weight: 600;
+        }
+        .logo-text {
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(229, 9, 20, 0.5);
+            background: linear-gradient(135deg, #ff0a18, #e50914);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .search-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        .search-input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(229, 9, 20, 0.5);
+            box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.25);
+        }
+        .auth-button {
+            background: linear-gradient(135deg, #ff0a18, #e50914);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(229, 9, 20, 0.3);
+        }
+        .auth-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(229, 9, 20, 0.4);
+        }
+        .logout-button {
+            background: linear-gradient(135deg, #ff0a18, #e50914);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(229, 9, 20, 0.3);
+        }
+        .logout-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(229, 9, 20, 0.4);
+        }
     </style>
 </head>
 <body class="bg-darker text-white font-sans">
-    <header class="bg-dark py-4 px-6 shadow-lg fixed top-0 w-full z-50">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-3xl font-bold text-primary tracking-wider">PELIXS</h1>
-            <nav class="hidden md:flex space-x-6">
-                <a href="/home" class="hover:text-primary transition">Home</a>
-                <a href="/browse" class="hover:text-primary transition">Browse</a>
-                <a href="/movies" class="text-primary font-medium">Movies</a>
-                <a href="/shows" class="hover:text-primary transition">TV Shows</a>
-                <a href="/anime" class="hover:text-primary transition">Anime</a>
-                <a href="/browse?list=favorites" class="{{ request()->has('list') && request()->query('list') == 'favorites' ? 'text-primary font-medium' : 'hover:text-primary transition' }}">My List</a>
-            </nav>
-            <div class="flex items-center space-x-4">
-                <form id="search-form" action="/movies" method="get" class="flex items-center w-64">
-                    @if(request()->has('list'))
-                        <input type="hidden" name="list" value="{{ is_array(request()->query('list')) ? implode(',', request()->query('list')) : request()->query('list') }}">
-                    @endif
-                    <div class="flex bg-gray-800 border border-gray-700 rounded-full items-center w-full">
-                        <input id="search-input" type="text" name="search" placeholder="Search movies..."
-                               value="{{ $search }}" class="bg-gray-800 text-white px-4 py-2 rounded-l-full text-sm focus:outline-none w-full">
-                        <button type="submit" class="text-xl p-2 text-white"><i class="ri-search-line"></i></button>
+    <!-- Header -->
+    <header class="header-container py-4 fixed top-0 w-full z-50 transition-all duration-300">
+        <div class="container mx-auto px-6">
+            <div class="flex justify-between items-center">
+                <!-- Logo -->
+                <h1 class="logo-text text-3xl">PELIXS</h1>
+                <!-- Navigation -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="/home" class="nav-link {{ request()->is('home') ? 'active' : '' }}">Home</a>
+                    <a href="/browse" class="nav-link {{ request()->is('browse') ? 'active' : '' }}">Browse</a>
+                    <a href="/movies" class="nav-link {{ request()->is('movies') ? 'active' : '' }}">Movies</a>
+                    <a href="/shows" class="nav-link {{ request()->is('shows') ? 'active' : '' }}">TV Shows</a>
+                    <a href="/anime" class="nav-link {{ request()->is('anime') ? 'active' : '' }}">Anime</a>
+                    @auth
+                        @can('access-community-chat')
+                            <a href="{{ url('/community') }}" class="nav-link {{ request()->is('community') ? 'active' : '' }}">Community</a>
+                            <a href="/mylist" class="nav-link {{ request()->is('mylist') ? 'active' : '' }}">My List</a>
+                        @endcan
+                        <a href="{{ url('/subscription') }}" class="nav-link {{ request()->is('subscription') ? 'active' : '' }}">Subscription</a>
+                    @else
+                        <a href="{{ url('/login') }}" class="nav-link">Community</a>
+                    @endauth
+                </nav>
+                <!-- Search Bar & Auth -->
+                <div class="flex items-center space-x-5">
+                    <div class="relative flex items-center">
+                        <form id="search-form" action="/movies" method="get" class="flex items-center">
+                            @if(request()->has('list'))
+                                <input type="hidden" name="list" value="{{ is_array(request()->query('list')) ? implode(',', request()->query('list')) : request()->query('list') }}">
+                            @endif
+                            <div class="relative">
+                                <input id="search-input" type="text" name="search" placeholder="Search movies..." 
+                                       value="{{ $search }}"
+                                       class="search-input pl-10 pr-4 py-2 rounded-full text-sm focus:outline-none w-52">
+                                <button type="submit" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition">
+                                    <i class="ri-search-line"></i>
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                </form>
-                <button class="text-xl p-2 rounded-full hover:bg-gray-800 transition"><i class="ri-notification-3-line"></i></button>
-                <div class="relative">
-                    <button id="profile-toggle" class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                        <i class="ri-user-line text-white"></i>
-                    </button>
-                    <div id="profile-dropdown" class="profile-dropdown absolute right-0 top-full mt-2 w-48 bg-dark border border-gray-700 rounded-lg shadow-lg hidden">
-                        <ul class="py-1">
-                            <li><a href="/profile" class="block px-4 py-2 hover:bg-gray-800 transition flex items-center"><i class="ri-user-line mr-2"></i> Profile</a></li>
-                            <li><a href="/settings" class="block px-4 py-2 hover:bg-gray-800 transition flex items-center"><i class="ri-settings-3-line mr-2"></i> Settings</a></li>
-                            <li>
-                                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">@csrf</form>
-                                <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" 
-                                   class="block px-4 py-2 hover:bg-gray-800 transition text-red-500 hover:text-red-400 flex items-center">
-                                    <i class="ri-logout-box-r-line mr-2"></i> Logout
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+                    @guest
+                        <a href="{{ url('/login') }}"
+                           class="auth-button text-white px-5 py-2 rounded-full flex items-center">
+                            <i class="ri-login-box-line mr-2"></i> Log In
+                        </a>
+                    @else
+                        <form action="{{ route('logout') }}" method="POST" class="inline-flex">
+                            @csrf
+                            <button type="submit"
+                                    class="logout-button text-white px-5 py-2 rounded-full flex items-center">
+                                <i class="ri-logout-box-r-line mr-2"></i> Log Out
+                            </button>
+                        </form>
+                    @endauth
                 </div>
             </div>
         </div>
     </header>
+</body>
+</html>
 
     <main class="pt-24 px-4 md:px-6 pb-16">
         <div class="container mx-auto">

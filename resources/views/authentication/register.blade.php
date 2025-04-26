@@ -97,7 +97,6 @@
             }
         }
 
-        /* Improved Overlay Gradient with particle effect */
         .overlay-gradient {
             position: fixed;
             top: 0;
@@ -111,7 +110,6 @@
                 linear-gradient(to bottom, rgba(3, 3, 24, 0.7), rgba(20, 20, 60, 0.6), rgba(3, 3, 24, 0.8));
         }
         
-        /* Particle effect */
         .particles {
             position: fixed;
             top: 0;
@@ -652,7 +650,6 @@
             font-size: 1.2rem;
         }
 
-        /* Enhanced Divider */
         .divider {
             display: flex;
             align-items: center;
@@ -684,7 +681,6 @@
             background: var(--card-bg);
         }
 
-        /* Enhanced Social Options */
         .social-options {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -743,7 +739,6 @@
             transform: scale(1.2);
         }
 
-        /* Enhanced Login Prompt */
         .login-prompt {
             text-align: center;
             margin-top: 1.75rem;
@@ -774,7 +769,6 @@
             transform: translateX(6px);
         }
 
-        /* Enhanced Footer */
         .footer {
             text-align: center;
             color: var(--text-subtle);
@@ -799,160 +793,151 @@
     </style>
 </head>
 <body>
-<!-- Movie Covers Background -->
-<div class="movie-covers-bg">
-    <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/1g0dhYtq4irTY1GPXvft6k4YLjm.jpg');"></div> <!-- The Godfather II -->
-    <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/bwVhmPpydv8P7mWfrmL3XVw0MV5.jpg');"></div> <!-- Back to the Future -->
-    <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/3bhkrj58Vtu7enYsRolD1fZdja1.jpg');"></div> <!-- The Lion King -->
-    <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/eP5NL7ZlGoW9tE9qnCdHpOLH1Ke.jpg');"></div> <!-- The Green Mile -->
-    <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/8tZYtuWezp8JbcsvHYO0O46tFbo.jpg');"></div> <!-- Mad Max: Fury Road -->
-    <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/9xjZS2rlVxm8SFx8kPC3aIGCOYQ.jpg');"></div> <!-- Titanic -->
-    <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/u8BMLmwoc7YPHKm7RQ5nkDQfz0H.jpg');"></div> <!-- The Prestige -->
-    <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/Ab8mkHmkYADjU7wQiOkia9BzGvS.jpg');"></div> <!-- Harry Potter -->
-    <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/bdHQKEnx9RsMPs298cDNM4PresQ.jpg');"></div> <!-- Eternal Sunshine -->
-    <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/7sfbEnaARXDDhXz9O6twrqeIlDe.jpg');"></div> <!-- La La Land -->
-    <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/4ssDuvEDkSArWEdyBl2X5EHvYKU.jpg');"></div> <!-- Parasite -->
-    <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/wCHtYD50ZBGGzWC5QFRtKl8xy2g.jpg');"></div> <!-- No Country for Old Men -->
-    <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/8lI1p5cPqgXN2qrps8mNmvKkc5j.jpg');"></div> <!-- Arrival -->
-    <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/eHuGQ10FUzK1mdOY69wF5pGgEf5.jpg');"></div> <!-- Interstellar -->
-    <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/m1UfecL7qa0TYwxn4AJKFSXgySL.jpg');"></div> <!-- Blade Runner 2049 -->
-    <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/hEpWvX6Bp79eLxY1kX5ZZJcme5U.jpg');"></div> <!-- The Matrix -->
-    <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/saHP97rTPS5eLmrLQEcANmKrsFl.jpg');"></div> <!-- Inception -->
-    <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/velWPhVMQeQKcxggNEU8YmIo52R.jpg');"></div> <!-- Pulp Fiction -->
-    <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg');"></div> <!-- The Shawshank Redemption -->
-    <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg');"></div> <!-- Parasite -->
-    <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/rr7E0NoGKxvbkb89eR1GwfoYjpA.jpg');"></div> <!-- Fight Club -->
-    <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/xJHokMbljvjADYdit5fK5VQsXEG.jpg');"></div> <!-- Joker -->
-    <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/zb6fM1CX41D9rF9hdgclu0peUmy.jpg');"></div> <!-- Oppenheimer -->
-</div>
-
-<!-- Overlay Gradient -->
-<div class="overlay-gradient"></div>
-
-<!-- Particle Effect -->
-<div class="particles" id="particles"></div>
-
-<!-- Floating Movie Cards -->
-<div class="floating-covers">
-    <div class="movie-card" style="background-image: url('https://image.tmdb.org/t/p/w500/saHP97rTPS5eLmrLQEcANmKrsFl.jpg'); width: 180px; height: 270px; left: 10%; top: 20%; animation-delay: 0s;"></div>
-    <div class="movie-card" style="background-image: url('https://image.tmdb.org/t/p/w500/hEpWvX6Bp79eLxY1kX5ZZJcme5U.jpg'); width: 160px; height: 240px; right: 15%; top: 15%; animation-delay: 3s;"></div>
-    <div class="movie-card" style="background-image: url('https://image.tmdb.org/t/p/w500/m1UfecL7qa0TYwxn4AJKFSXgySL.jpg'); width: 140px; height: 210px; left: 20%; bottom: 20%; animation-delay: 6s;"></div>
-    <div class="movie-card" style="background-image: url('https://image.tmdb.org/t/p/w500/zb6fM1CX41D9rF9hdgclu0peUmy.jpg'); width: 150px; height: 225px; right: 20%; bottom: 15%; animation-delay: 8s;"></div>
-</div>
-
-<!-- Main Container -->
-<div class="main-container">
-    <div class="auth-card">
-        <div class="glass-effect"></div>
-        <div class="corner-decoration corner-top-left"></div>
-        <div class="corner-decoration corner-top-right"></div>
-        <div class="corner-decoration corner-bottom-left"></div>
-        <div class="corner-decoration corner-bottom-right"></div>
-        
-        <div class="brand-header">
-            <div class="logo-glow"></div>
-            <div class="brand-logo">PELIXS</div>
-            <div class="brand-tagline">Your Cinema, Your Experience</div>
-        </div>
-        
-        <h2 class="form-title">Create Your <span class="gradient-text" data-text="Account">Account</span></h2>
-        
-        <form>
-            <div class="form-row">
+    <div class="movie-covers-bg">
+        <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/1g0dhYtq4irTY1GPXvft6k4YLjm.jpg');"></div> <!-- The Godfather II -->
+        <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/bwVhmPpydv8P7mWfrmL3XVw0MV5.jpg');"></div> <!-- Back to the Future -->
+        <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/3bhkrj58Vtu7enYsRolD1fZdja1.jpg');"></div> <!-- The Lion King -->
+        <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/eP5NL7ZlGoW9tE9qnCdHpOLH1Ke.jpg');"></div> <!-- The Green Mile -->
+        <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/8tZYtuWezp8JbcsvHYO0O46tFbo.jpg');"></div> <!-- Mad Max: Fury Road -->
+        <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/9xjZS2rlVxm8SFx8kPC3aIGCOYQ.jpg');"></div> <!-- Titanic -->
+        <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/u8BMLmwoc7YPHKm7RQ5nkDQfz0H.jpg');"></div> <!-- The Prestige -->
+        <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/Ab8mkHmkYADjU7wQiOkia9BzGvS.jpg');"></div> <!-- Harry Potter -->
+        <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/bdHQKEnx9RsMPs298cDNM4PresQ.jpg');"></div> <!-- Eternal Sunshine -->
+        <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/7sfbEnaARXDDhXz9O6twrqeIlDe.jpg');"></div> <!-- La La Land -->
+        <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/4ssDuvEDkSArWEdyBl2X5EHvYKU.jpg');"></div> <!-- Parasite -->
+        <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/wCHtYD50ZBGGzWC5QFRtKl8xy2g.jpg');"></div> <!-- No Country for Old Men -->
+        <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/8lI1p5cPqgXN2qrps8mNmvKkc5j.jpg');"></div> <!-- Arrival -->
+        <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/eHuGQ10FUzK1mdOY69wF5pGgEf5.jpg');"></div> <!-- Interstellar -->
+        <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/m1UfecL7qa0TYwxn4AJKFSXgySL.jpg');"></div> <!-- Blade Runner 2049 -->
+        <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/hEpWvX6Bp79eLxY1kX5ZZJcme5U.jpg');"></div> <!-- The Matrix -->
+        <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/saHP97rTPS5eLmrLQEcANmKrsFl.jpg');"></div> <!-- Inception -->
+        <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/velWPhVMQeQKcxggNEU8YmIo52R.jpg');"></div> <!-- Pulp Fiction -->
+        <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg');"></div> <!-- The Shawshank Redemption -->
+        <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg');"></div> <!-- Parasite -->
+        <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/rr7E0NoGKxvbkb89eR1GwfoYjpA.jpg');"></div> <!-- Fight Club -->
+        <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/xJHokMbljvjADYdit5fK5VQsXEG.jpg');"></div> <!-- Joker -->
+        <div class="movie-poster-bg" style="background-image: url('https://image.tmdb.org/t/p/w500/zb6fM1CX41D9rF9hdgclu0peUmy.jpg');"></div> <!-- Oppenheimer -->
+    </div>
+    
+    <div class="overlay-gradient"></div>
+    
+    <div class="particles" id="particles"></div>
+    
+    <div class="floating-covers">
+        <div class="movie-card" style="background-image: url('https://image.tmdb.org/t/p/w500/saHP97rTPS5eLmrLQEcANmKrsFl.jpg'); width: 180px; height: 270px; left: 10%; top: 20%; animation-delay: 0s;"></div>
+        <div class="movie-card" style="background-image: url('https://image.tmdb.org/t/p/w500/hEpWvX6Bp79eLxY1kX5ZZJcme5U.jpg'); width: 160px; height: 240px; right: 15%; top: 15%; animation-delay: 3s;"></div>
+        <div class="movie-card" style="background-image: url('https://image.tmdb.org/t/p/w500/m1UfecL7qa0TYwxn4AJKFSXgySL.jpg'); width: 140px; height: 210px; left: 20%; bottom: 20%; animation-delay: 6s;"></div>
+        <div class="movie-card" style="background-image: url('https://image.tmdb.org/t/p/w500/zb6fM1CX41D9rF9hdgclu0peUmy.jpg'); width: 150px; height: 225px; right: 20%; bottom: 15%; animation-delay: 8s;"></div>
+    </div>
+    
+    <!-- Main Container -->
+    <div class="main-container">
+        <div class="auth-card">
+            <div class="glass-effect"></div>
+            <div class="corner-decoration corner-top-left"></div>
+            <div class="corner-decoration corner-top-right"></div>
+            <div class="corner-decoration corner-bottom-left"></div>
+            <div class="corner-decoration corner-bottom-right"></div>
+            
+            <div class="brand-header">
+                <div class="logo-glow"></div>
+                <div class="brand-logo">PELIXS</div>
+                <div class="brand-tagline">Your Cinema, Your Experience</div>
+            </div>
+            
+            <h2 class="form-title">Create Your <span class="gradient-text" data-text="Account">Account</span></h2>
+            
+            <form>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="first-name">First Name</label>
+                        <div class="input-container">
+                            <input type="text" id="first-name" class="input-field" placeholder="John">
+                            <i class="input-icon ri-user-line"></i>
+                            <i class="validation-icon ri-checkbox-circle-fill"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="last-name">Last Name</label>
+                        <div class="input-container">
+                            <input type="text" id="last-name" class="input-field" placeholder="Doe">
+                            <i class="input-icon ri-user-line"></i>
+                            <i class="validation-icon ri-checkbox-circle-fill"></i>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="form-group">
-                    <label class="form-label" for="first-name">First Name</label>
+                    <label class="form-label" for="email">Email Address</label>
                     <div class="input-container">
-                        <input type="text" id="first-name" class="input-field" placeholder="John">
-                        <i class="input-icon ri-user-line"></i>
+                        <input type="email" id="email" class="input-field" placeholder="john.doe@example.com">
+                        <i class="input-icon ri-mail-line"></i>
                         <i class="validation-icon ri-checkbox-circle-fill"></i>
                     </div>
                 </div>
                 
                 <div class="form-group">
-                    <label class="form-label" for="last-name">Last Name</label>
+                    <label class="form-label" for="password">Password</label>
                     <div class="input-container">
-                        <input type="text" id="last-name" class="input-field" placeholder="Doe">
-                        <i class="input-icon ri-user-line"></i>
-                        <i class="validation-icon ri-checkbox-circle-fill"></i>
+                        <input type="password" id="password" class="input-field" placeholder="••••••••">
+                        <i class="input-icon ri-lock-line"></i>
+                        <button type="button" class="password-toggle">
+                            <i class="ri-eye-line"></i>
+                        </button>
                     </div>
                 </div>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label" for="email">Email Address</label>
-                <div class="input-container">
-                    <input type="email" id="email" class="input-field" placeholder="john.doe@example.com">
-                    <i class="input-icon ri-mail-line"></i>
-                    <i class="validation-icon ri-checkbox-circle-fill"></i>
+                
+                <div class="form-group">
+                    <label class="form-label" for="confirm-password">Confirm Password</label>
+                    <div class="input-container">
+                        <input type="password" id="confirm-password" class="input-field" placeholder="••••••••">
+                        <i class="input-icon ri-lock-line"></i>
+                        <button type="button" class="password-toggle">
+                            <i class="ri-eye-line"></i>
+                        </button>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label" for="password">Password</label>
-                <div class="input-container">
-                    <input type="password" id="password" class="input-field" placeholder="••••••••">
-                    <i class="input-icon ri-lock-line"></i>
-                    <button type="button" class="password-toggle">
-                        <i class="ri-eye-line"></i>
-                    </button>
+                
+                <div class="terms-agreement">
+                    <input type="checkbox" id="terms" class="custom-checkbox">
+                    <label for="terms" class="terms-label">
+                        I agree to the <a href="#" class="terms-link">Terms of Service</a> and <a href="#" class="terms-link">Privacy Policy</a>
+                    </label>
                 </div>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label" for="confirm-password">Confirm Password</label>
-                <div class="input-container">
-                    <input type="password" id="confirm-password" class="input-field" placeholder="••••••••">
-                    <i class="input-icon ri-lock-line"></i>
-                    <button type="button" class="password-toggle">
-                        <i class="ri-eye-line"></i>
-                    </button>
+                
+                <button type="submit" class="primary-button">
+                    <i class="btn-icon ri-movie-2-line"></i>
+                    Register Now
+                </button>
+                
+                <div class="divider">
+                    <span>or continue with</span>
                 </div>
-            </div>
-            
-            <div class="terms-agreement">
-                <input type="checkbox" id="terms" class="custom-checkbox">
-                <label for="terms" class="terms-label">
-                    I agree to the <a href="#" class="terms-link">Terms of Service</a> and <a href="#" class="terms-link">Privacy Policy</a>
-                </label>
-            </div>
-            
-            <button type="submit" class="primary-button">
-                <i class="btn-icon ri-movie-2-line"></i>
-                Register Now
-            </button>
-            
-            <div class="divider">
-                <span>or continue with</span>
-            </div>
-            
-            <div class="social-options">
-                <a href="#" class="social-button">
-                    <i class="social-icon ri-google-fill"></i>
-                    Google
-                </a>
-                <a href="#" class="social-button">
-                    <i class="social-icon ri-facebook-fill"></i>
-                    Facebook
-                </a>
-            </div>
-            
-            <div class="login-prompt">
-                Already have an account?
-                <a href="#" class="login-link">
-                    Sign In
-                    <i class="login-icon ri-arrow-right-line"></i>
-                </a>
-            </div>
-        </form>
+                
+                <div class="social-options">
+                    <a href="#" class="social-button">
+                        <i class="social-icon ri-google-fill"></i>
+                        Google
+                    </a>
+                </div>
+                
+                <div class="login-prompt">
+                    Already have an account?
+                    <a href="login" class="login-link">
+                        Sign In
+                        <i class="login-icon ri-arrow-right-line"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+        
+        <div class="footer">
+            &copy; 2025 PELIXS. All rights reserved. Your ultimate cinema companion.
+        </div>
     </div>
-    
-    <div class="footer">
-        &copy; 2025 PELIXS. All rights reserved. Your ultimate cinema companion.
-    </div>
-</div>
 
 <script>
-    // Create particles
     document.addEventListener('DOMContentLoaded', function() {
         const particlesContainer = document.getElementById('particles');
         
@@ -960,27 +945,22 @@
             const particle = document.createElement('div');
             particle.classList.add('particle');
             
-            // Random size between 3 and 8px
             const size = Math.random() * 5 + 3;
             particle.style.width = size + 'px';
             particle.style.height = size + 'px';
             
-            // Random position
             particle.style.left = Math.random() * 100 + '%';
             particle.style.bottom = -10 + 'px';
             
-            // Random animation duration between 8 and 20s
             const duration = Math.random() * 12 + 8;
             particle.style.animationDuration = duration + 's';
             
-            // Random animation delay
             particle.style.animationDelay = Math.random() * 5 + 's';
             
             particlesContainer.appendChild(particle);
         }
     });
     
-    // Password toggle functionality
     document.addEventListener('DOMContentLoaded', function() {
         const toggleButtons = document.querySelectorAll('.password-toggle');
         
