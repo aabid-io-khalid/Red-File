@@ -1,66 +1,173 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+Movie, TV Show, and Anime Review Platform
+A full-stack web application for discovering, reviewing, and chatting about movies, TV shows, and anime — complete with a real-time chat, secure downloads, and admin management tools.
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+📌 Table of Contents
+Overview
 
-## About Laravel
+Objectives
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+User Roles & Permissions
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Tech Stack
 
-## Learning Laravel
+Database Schema
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Design & UX
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+Setup Instructions
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Project Phases & Timeline
 
-## Laravel Sponsors
+Security & Performance
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Deliverables
 
-### Premium Partners
+🔍 Overview
+This project provides a rich, interactive platform for users to:
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+Browse, search, and filter a wide range of movies, TV shows, and anime.
 
-## Contributing
+Leave ratings and comments.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Join real-time chat rooms (1-on-1 and groups).
 
-## Code of Conduct
+Securely download content (for premium users).
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Administer and moderate the platform via a dedicated dashboard.
 
-## Security Vulnerabilities
+🎯 Objectives
+Enable users to discover, review, and download media content.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Foster an engaging community experience through comments, ratings, and real-time chat.
 
-## License
+Provide administrators with tools for managing content, users, and conversations.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+💡 Features
+✅ Core Functionalities
+Authentication & Authorization
+
+Email/password login
+
+OAuth with Google
+
+Password reset tokens
+
+Role-based access
+
+Media Catalog
+
+View poster, description, genres, rating, trailer, cast
+
+Related titles recommendations
+
+Ratings & Comments
+
+0–10 scoring system
+
+Comment threads with like/dislike
+
+Admin moderation
+
+Favorites & Watchlists
+
+Premium users save favorites and manage personal watchlists
+
+Downloads
+
+Secure, expiring links for premium members
+
+Real-Time Chat
+
+1-on-1 messages
+
+Group chats with profile pictures, image attachments, and timestamps
+
+React + WebSocket interface
+
+Admin Panel
+
+Media CRUD operations
+
+User ban/unban
+
+Category management
+
+Chat moderation
+
+👤 User Roles & Permissions
+
+Role	Capabilities
+Guest	Browse, search, view media details
+User	All guest permissions + comment and rate
+Premium	All user permissions + favorites, downloads, chat access
+Admin	All premium permissions + content moderation, media/user CRUD, category management
+
+🧱 Tech Stack
+Frontend: HTML5, CSS3, JavaScript
+
+Backend API: Laravel (PHP)
+
+Real-Time Chat: Node.js + Express.js + WebSocket (ws)
+
+Database: MySQL
+
+Authentication: JWT, OAuth
+
+Payments: Stripe API
+
+Version Control: Git, GitHub
+
+🗃️ Database Schema (Key Tables)
+
+Table	Purpose
+users	User info (name, email, profilePic)
+movies, tv_shows	Media content metadata
+categories	Media genres
+categoryables	Polymorphic genre mapping
+comments	User reviews and ratings
+subscriptions	Stripe-based premium tracking
+user_movie_list	Watchlist management
+messages	1-on-1 chat
+groups, group_messages	Group chat system
+
+🎨 Design & UX
+User Interface
+Homepage: Trending carousel, search bar, filters
+
+Detail Page: Media info, comments, related titles
+
+Chat Widget: React UI with user list, real-time input
+
+Admin Panel: Sidebar nav, CRUD forms, tables
+
+⚙️ Setup Instructions
+Backend (Laravel API)
+
+git clone https://github.com/your-repo/backend.git
+cd backend
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+php artisan serve
+Frontend (React Chat & UI)
+ 
+
+git clone https://github.com/your-repo/chat-client.git
+cd chat-client
+npm install
+npm start
+WebSocket Server
+bash
+Copy
+Edit
+git clone https://github.com/your-repo/chat-server.git
+cd chat-server
+npm install
+node server.js
+
+
+
+
