@@ -145,7 +145,7 @@ Admin Panel: Sidebar nav, CRUD forms, tables
 ⚙️ Setup Instructions
 Backend (Laravel API)
 
-git clone https://github.com/your-repo/backend.git
+git clone https://github.com/aabid-io-khalid/Red-File
 cd backend
 composer install
 cp .env.example .env
@@ -155,15 +155,14 @@ php artisan serve
 Frontend (React Chat & UI)
  
 
-git clone https://github.com/your-repo/chat-client.git
+git clone https://github.com/aabid-io-khalid/Red-File
 cd chat-client
 npm install
 npm start
 WebSocket Server
-bash
-Copy
-Edit
-git clone https://github.com/your-repo/chat-server.git
+
+
+git clone https://github.com/aabid-io-khalid/Red-File
 cd chat-server
 npm install
 node server.js
